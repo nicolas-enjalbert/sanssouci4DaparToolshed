@@ -24,4 +24,7 @@ Imports:
     DaparToolshed,
     limma,
     sanssouci
+Remotes:
+    sanssouci-org/sanssouci
+    edyp-lab/DaparToolshed
 VignetteBuilder: knitr
