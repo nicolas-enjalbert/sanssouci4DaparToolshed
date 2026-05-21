@@ -1,0 +1,14 @@
+Package: sanssouci4DaparToolshed
+Title: Using sanssouci in DaparToolshed proteomic pipeline
+Version: 0.0.0.9000
+Authors@R: c(
+    person("Nicolas", "Enjalbert Courrech", , "nicolas.enjalbert-courrech@inrae.fr", role = c("aut", "cre")),
+    person("Manon", "Gaudin", , "manon.gaudin@cea.fr", role = c("aut", "cre"))
+  )
+Description: Wrapper between DaparToolshed package and sanssouci package. 
+  DaparToolshed provides a pipeline to analyse proteomics data. 
+  sanssouci provides a post hoc method to control the False Discovery Rate.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 8.0.0
