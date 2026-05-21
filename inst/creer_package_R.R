@@ -77,8 +77,8 @@ roxygen2md::roxygen2md()
 # 3. Développer un package ----------------------------------
 # 3.a. Inclure du code, le documenter et le tester
 # Pour chaque fonction du package :
-usethis::use_r("mafonction")
-usethis::use_test("mafonction")
+usethis::use_r("limmaAnalyses_1vs1")
+usethis::use_test("limmaAnalyses_1vs1")
 # écrire le code de la fonction
 # documenter la fonction
 # Actualiser le NAMESPACE et la documentation
@@ -88,7 +88,7 @@ devtools::document()
 devtools::test()
 
 # 3.b. Si besoin, déclarer une dépendance
-usethis::use_package("dplyr", min_version = "0.8")
+usethis::use_package("limma")
 # pour utiliser %>% dans un package
 usethis::use_pipe()
 
