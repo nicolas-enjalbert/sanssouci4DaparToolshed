@@ -13,7 +13,15 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
 Suggests: 
+    BiocStyle,
+    knitr,
+    pak,
+    Pirat,
+    rmarkdown,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
 Imports: 
-    limma
+    DaparToolshed,
+    limma,
+    sanssouci
+VignetteBuilder: knitr

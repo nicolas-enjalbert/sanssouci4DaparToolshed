@@ -89,6 +89,8 @@ devtools::test()
 
 # 3.b. Si besoin, déclarer une dépendance
 usethis::use_package("limma")
+usethis::use_package("sanssouci")
+usethis::use_package("DaparToolshed")
 # pour utiliser %>% dans un package
 usethis::use_pipe()
 
@@ -99,6 +101,13 @@ devtools::load_all()
 # 3.d. Assurer la conformité du package
 # Réaliser le contrôle de conformité
 devtools::check()
+
+## Regarder la couverture de code
+coverage <- covr::package_coverage(path = ".",
+                                   type = c("tests"),
+                                   quiet = FALSE,
+                                   clean = FALSE)
+covr::report(coverage)
 
 # 4. Installer le package -----------------------------------
 # 4.a. Sur sa machine
@@ -112,7 +121,7 @@ devtools::build()
 usethis::use_readme_rmd() # ou bien usethis::use_readme_md()
 
 # 5.b. Créer une vignette (fortement recommandé)
-usethis::use_vignette("nom")
+usethis::use_vignette(nom)
 # Ecrire au moins une vignette qui explique
 # comment on utilise le package
 # Pour construire les vignettes
