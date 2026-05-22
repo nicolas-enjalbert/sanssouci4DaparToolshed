@@ -38,6 +38,11 @@ wrapper_QFtoSansSouci <- function(obj, i = NULL) {
   if (!is.numeric(i) & !(i %in% names(obj))){
     stop("'i' must either be numeric or be the name of one obj assay.")
   }
+  if (is.numeric(i) & (i > length(obj))){
+    txt <- paste0("'i' is out of bounds. Numeric 'i' must be between 1 and ",
+                  length(obj), ".")
+    stop(txt)
+  }
   
   Y <- SummarizedExperiment::assay(obj[[i]])
   groups <- as.integer(as.factor(DaparToolshed::design_qf(obj)$Condition)) - 1 
