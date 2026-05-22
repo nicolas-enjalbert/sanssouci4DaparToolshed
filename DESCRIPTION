@@ -25,6 +25,6 @@ Imports:
     limma,
     sanssouci
 Remotes:
-    sanssouci-org/sanssouci
+    sanssouci-org/sanssouci,
     edyp-lab/DaparToolshed
 VignetteBuilder: knitr
