@@ -29,14 +29,3 @@ jobs:
 
           percent <- covr::percent_coverage(cov)
           cat("\nCoverage:", percent, "%\n")
-
-          covr::report(
-            x = cov,
-            file = "coverage.html"
-          )
-
-      - name: Upload coverage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-report
-          path: coverage.html
