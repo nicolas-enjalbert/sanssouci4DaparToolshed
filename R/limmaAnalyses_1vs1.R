@@ -6,11 +6,11 @@
 #' @returns a list with 'p.values' a vector of size p of raw pvalues
 #'  and 'logFC' a vector of size p of log Fold Change, both from Limma pipeline
 #'
-#'  @importFrom limma lmFit
-#'  @importFrom limma makeContrasts
-#'  @importFrom limma contrasts.fit
-#'  @importFrom limma eBayes
-#'  @importFrom stats model.matrix
+#' @importFrom limma lmFit
+#' @importFrom limma makeContrasts
+#' @importFrom limma contrasts.fit
+#' @importFrom limma eBayes
+#' @importFrom stats model.matrix
 #'
 #'
 #' @keywords internal
