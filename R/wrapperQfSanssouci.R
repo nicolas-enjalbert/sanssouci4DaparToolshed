@@ -4,8 +4,8 @@
 #' Convert an assay of an object of class `QFeatures` in a `Sanssouci` object.
 #'
 #' @param obj An object of class `QFeatures`.
-#' @param i An `integer(1)` index or a `character(1)` name of the assay which will be converted. 
-#' If NULL, the last assay will be selected by default.
+#' @param i An `integer(1)` index or a `character(1)` name of the assay which 
+#' will be converted. If NULL, the last assay will be selected by default.
 #'
 #' @returns An object of class `SansSouci`.
 #'

@@ -1,6 +1,6 @@
 Package: sanssouci4DaparToolshed
 Title: Using sanssouci in DaparToolshed proteomic pipeline
-Version: 0.0.0.9000
+Version: 0.99.01
 Authors@R: c(
     person("Nicolas", "Enjalbert Courrech", , "nicolas.enjalbert-courrech@inrae.fr", role = c("aut", "cre")),
     person("Manon", "Gaudin", , "manon.gaudin@cea.fr", role = c("aut"))
@@ -18,13 +18,15 @@ Suggests:
     pak,
     Pirat,
     rmarkdown,
-    testthat (>= 3.0.0)
+    testthat (>= 3.0.0),
+    SummarizedExperiment
 Config/testthat/edition: 3
 Imports: 
     DaparToolshed,
     limma,
     sanssouci
-Remotes:
-    sanssouci-org/sanssouci,
-    edyp-lab/DaparToolshed
 VignetteBuilder: knitr
+biocViews: 
+    Proteomics,
+    MassSpectrometry,
+    Visualization

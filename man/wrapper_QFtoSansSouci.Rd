@@ -9,8 +9,8 @@ wrapper_QFtoSansSouci(obj, i = NULL)
 \arguments{
 \item{obj}{An object of class \code{QFeatures}.}
 
-\item{i}{An \code{integer(1)} index or a \code{character(1)} name of the assay which will be converted.
-If NULL, the last assay will be selected by default.}
+\item{i}{An \code{integer(1)} index or a \code{character(1)} name of the assay which
+will be converted. If NULL, the last assay will be selected by default.}
 }
 \value{
 An object of class \code{SansSouci}.
