@@ -3,7 +3,7 @@ Title: Using sanssouci in DaparToolshed proteomic pipeline
 Version: 0.0.0.9000
 Authors@R: c(
     person("Nicolas", "Enjalbert Courrech", , "nicolas.enjalbert-courrech@inrae.fr", role = c("aut", "cre")),
-    person("Manon", "Gaudin", , "manon.gaudin@cea.fr", role = c("aut", "cre"))
+    person("Manon", "Gaudin", , "manon.gaudin@cea.fr", role = c("aut"))
   )
 Description: Wrapper between DaparToolshed package and sanssouci package. 
   DaparToolshed provides a pipeline to analyse proteomics data. 
@@ -12,3 +12,19 @@ License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
+Suggests: 
+    BiocStyle,
+    knitr,
+    pak,
+    Pirat,
+    rmarkdown,
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3
+Imports: 
+    DaparToolshed,
+    limma,
+    sanssouci
+Remotes:
+    sanssouci-org/sanssouci,
+    edyp-lab/DaparToolshed
+VignetteBuilder: knitr

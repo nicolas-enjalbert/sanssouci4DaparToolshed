@@ -6,3 +6,6 @@
 .quarto
 .positai
 *.Rproj
+inst/doc
+/doc/
+/Meta/

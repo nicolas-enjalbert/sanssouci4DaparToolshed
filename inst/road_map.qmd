@@ -1,0 +1,44 @@
+---
+title: "Feuille de route création package lien sanssouci pour DAPAR"
+format: html
+---
+
+But : faire un package pour utiliser sanssouci dans la pipeline d'analyse de données protéomiques du package DAPAR. 
+
+Package R : 
+  
+  - nom : **sanssouci4DaparToolshed** ? DaparToolshed.sanssouci ? (peut être a posteriori)
+  - Version de R : je crois que DaparToolshed utilise R(>=4.5.0) développe en 4.5.0 pour l'instant
+  - createur : Manon et Nicolas ? 
+  - support : github pour le développement, dans l'organisation sanssouci-org ? edyp-lab ? (choix a posteriori)
+  - owner du github en attendant : Manon et Nicolas 
+
+Le package contiendra : 
+  
+  - Fonction de wrapp pour importer un objet DAPAR dans un objet sanssouci [DAPARtoolshed ; sanssouci]
+  - Fonction choix de B -> recommandation du choix de B pour l'utilisateur 
+  - Fonction de test Limma : rowLimmaTest + fonction de base [limma]
+  - Fonction pour tracer le VP [ggplot2 / plotly]
+  - Fonction de sortie vers l'objet DAPAR
+  
+Cas pratiques : 
+
+  - commencer par un cas 1 vs 1 que nous savons faire
+  - regarder après comment faire les cas K > 2
+  
+A faire pour avoir un bon package : 
+
+  - mettre en place la documentation avec roxygene 
+  - mettre en place des tests unitaires/fonctionnel avec testthat + couverture de code avec covr::codecov
+  - vérifier les structures avec devtools::check (après devtools::document())
+  - mettre en place une CICD sur github avec usethis::use_github_action
+  - on peut travailler la vignette dans ce package
+  - mettre en place pkgdown pour faire le site web associé usethis::use_pkgdown_github_pages()
+  - passer styler et lintr pour avoir un jolie package (le lintr peut être intégrer en CICD)
+  
+Travail collaboratif : 
+
+- branch principale main sans modificiation du code (sauf peut être la description si besoin)
+- développement sur des branches supplémentaires. Pull request pour pousser les modifications sur les branches (CICD en action sur les PR)
+- utilisation du pull with rebase pour faciliter les conflits de commit. 
+  

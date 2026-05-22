@@ -1,0 +1,148 @@
+# 1. Initier un package -------------------------------------
+# Étapes à ne faire qu'une seule fois
+
+# 1.a. Choisir un nom
+nom <- "sanssouci4DaparToolshed"
+available::available(nom, browse = FALSE)
+
+# 1.b. Créer un projet RStudio de type "package"
+usethis::create_package(file.path("~/Documents/sanssouci/prostar-IIDEA/", nom))
+
+# 1.c. Renseigner les méta-données du package
+# Titre du package
+desc::desc_set(
+  Title = "Using sanssouci in DaparToolshed proteomic pipeline"
+)
+# Désigner les auteurs, contributeurs et
+# les détenteurs des droits de propriété intellectuelle
+desc::desc_set_authors(c(
+  person(
+    "Nicolas",
+    "Enjalbert Courrech",
+    role = c("aut", "cre"),
+    email = "nicolas.enjalbert-courrech@inrae.fr"
+  ),
+  person(
+    "Manon",
+    "Gaudin",
+    role = c("aut", "cre"),
+    email = "manon.gaudin@cea.fr"
+  )
+))
+# Décrire ce que fait le package
+desc::desc_set(
+  Description = "Wrapper between DaparToolshed package and sanssouci package.
+  DaparToolshed provides a pipeline to analyse proteomics data.
+  sanssouci provides a post hoc method to control the False Discovery Rate."
+)
+# Choisir une licence
+usethis::use_gpl3_license()
+
+# Si la documentation du package est en français
+# desc::desc_set(Language = "fr")
+
+# 2. Configurer les outils de développement -----------------
+# Étapes à ne faire qu'une seule fois
+
+# 2.a. Créer un dépôt vide dans GitLab
+# il est possible d'automatiser cette étape, voir le support de formation
+
+# 2.b. Utiliser git dans le projet RStudio
+usethis::use_git()
+
+# 2.c. Créer le lien entre le dépôt GitLab
+# et le projet RStudio
+#Plutot utilsier les commande
+# repo_url <- "https://gitlab.com/RLesur/monpetitpaquet.git"
+# usethis::use_git_remote(url = repo_url)
+# git2r::push(name = "origin",
+#             refspec = "refs/heads/master",
+#             set_upstream = TRUE
+# )
+
+# 2.d. Utiliser testthat pour les tests
+usethis::use_testthat()
+
+# 2.e. Utiliser l'intégration continue de GitLab
+# usethis::use_gitlab_ci()
+usethis::use_github_action()
+1
+usethis::use_github_action()
+2
+
+# 2.f. Pour utiliser markdown dans la documentation
+usethis::use_roxygen_md()
+roxygen2md::roxygen2md()
+
+# 3. Développer un package ----------------------------------
+# 3.a. Inclure du code, le documenter et le tester
+# Pour chaque fonction du package :
+usethis::use_r("limmaAnalyses_1vs1")
+usethis::use_test("limmaAnalyses_1vs1")
+# écrire le code de la fonction
+# documenter la fonction
+# Actualiser le NAMESPACE et la documentation
+devtools::document()
+# écrire les tests
+# exécuter les tests
+devtools::test()
+
+# 3.b. Si besoin, déclarer une dépendance
+usethis::use_package("limma")
+usethis::use_package("sanssouci")
+usethis::use_package("DaparToolshed")
+# pour utiliser %>% dans un package
+usethis::use_pipe()
+
+# 3.c. Astuce qui peut aider durant le développement
+# Charger l'ensemble des fonctions de son package
+devtools::load_all()
+
+# 3.d. Assurer la conformité du package
+# Réaliser le contrôle de conformité
+devtools::check()
+
+## Regarder la couverture de code
+coverage <- covr::package_coverage(path = ".",
+                                   type = c("tests"),
+                                   quiet = FALSE,
+                                   clean = FALSE)
+covr::report(coverage)
+
+# 4. Installer le package -----------------------------------
+# 4.a. Sur sa machine
+devtools::install()
+
+# 4.b. Générer le fichier compressé
+devtools::build()
+
+# 5. Documenter un package ----------------------------------
+# 5.a. Créer un README (obligatoire)
+usethis::use_readme_rmd() # ou bien usethis::use_readme_md()
+
+# 5.b. Créer une vignette (fortement recommandé)
+usethis::use_vignette(nom)
+# Ecrire au moins une vignette qui explique
+# comment on utilise le package
+# Pour construire les vignettes
+devtools::build_vignettes()
+
+# Créer le pkgdown qui va avec
+usethis::use_pkgdown_github_pages()
+
+# 6. Si besoin, créer un modèle de rapport R Markdown -------
+usethis::use_rmarkdown_template("note mensuelle")
+# éditer le fichier
+# inst/rmarkdown/templates/note-mensuelle/skeleton/skeleton.Rmd
+
+# 7. Bonnes pratiques ---------------------------------------
+# 7.a Créer un changelog (à ne faire qu'une fois)
+usethis::use_news_md()
+# 7.b. Gérer les versions
+usethis::use_version("dev")
+
+# 7.c. Améliorer les tests et la couverture de code
+# Si vous avez bien effectué l'étape 2.e,
+# le rapport de couverture de code est disponible
+# dans GitLab Pages
+# Viser une couverture de code de 100%
