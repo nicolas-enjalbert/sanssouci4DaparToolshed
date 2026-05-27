@@ -3,6 +3,8 @@
 #' @param categ a vector of design. Should consist only of '0' and '1'. If not return an error.
 #' @param n expected length of categ
 #'
+#' @keywords internal
+#'
 #' @returns NULL
 categCheck <- function(categ, n) {
   name <- as.character(substitute(categ))

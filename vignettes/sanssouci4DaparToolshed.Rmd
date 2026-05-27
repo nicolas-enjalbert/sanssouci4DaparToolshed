@@ -22,8 +22,7 @@ vignette: >
 ---
 
 ```{r style, echo = FALSE, results = 'asis'}
-knitr::opts_chunk$set(eval = FALSE)
-# BiocStyle::markdown()
+BiocStyle::markdown()
 ```
 
 ```{r setups, include=FALSE}
@@ -324,9 +323,9 @@ Dans le cas de l'étude différentielle de protéine, le package `Limma` est uti
 La première étape est d'initialiser l'objet `SansSouci`. Attention, ici les groupes doivent être codé avec des labels '1' et '0' pour les deux labels de groupes à comparer.
 
 ```{r}
+library(sanssouci4DaparToolshed)
 library(sanssouci)
-sanssouci_object <- SansSouci(Y = SummarizedExperiment::assay(obj[[length(obj)]]), 
-          groups = (design_qf(obj)$Condition == design_qf(obj)$Condition[1])*1)
+sanssouci_object <- wrapper_QFtoSansSouci(obj)
 ```
 
 ### Hypothesis testing and post hoc calibration 
@@ -343,66 +342,19 @@ alpha = 0.5
 ```
 
 
-Il faut également définir les interfaces d'utilisation du test de limma. 
-
-```{r}
-limmaAnalyses_1vs1 <- function(Y, groups){
-  groups <- as.factor(groups)
-  # Create design matrix with no intercepts
-  design.matrix <- model.matrix(~ 0 + groups)
-  # Fit a linear model 
-  res_lm <- limma::lmFit(Y, design.matrix)
-  # Define contrast : here onlye group1 vs group0 
-  contr <- limma::makeContrasts(groups1 - groups0,  
-                                levels = colnames(design.matrix))
-  # fit with contrast 
-  res_fit <- limma::contrasts.fit(res_lm, contr)
-  # make test
-  res_eb <- limma::eBayes(res_fit)
-  #extract 
-  # TT <- limma::topTable(res_eb, sort.by = "none", number = Inf)
-  
-  return(list(p.values = res_eb$p.value, logFC = res_eb$coefficients))
-}
-
-rowTestLimma_1vs1 <- function(X, categ, alternative = c("two.sided")){
-  
-  categ <- as.matrix(categ)
-  B <- ncol(categ)
-  p.value <- matrix(NA, nrow = nrow(X), ncol = B)
-  logFC <- matrix(NA, nrow = nrow(X), ncol = B)
-  for(b in seq(B)){
-    # print(b)
-    categ_b <- categ[,b]
-    res <- limmaAnalyses_1vs1(Y = X, 
-                              groups = categ_b)
-    # print(head(res$P_Value))
-    p.value[,b] <- res$p.values
-    # design
-    # head(p.value)
-    logFC[,b] <- res$logFC
-    
-  }
-  if (B == 1){
-    p.value = as.vector(p.value)
-    logFC = as.vector(logFC)
-  }
-  return(list(p.value = p.value, estimate = logFC))
-}
-```
-
 Le calcul des pvaleurs ainsi que la calibration des bornes post hoc se fait avec la fonction `fit` du package `sanssouci` en fournissant l'objet SansSouci, le niveau d'erreur $\alpha$ ainsi que la fonction de test. 
 
 ```{r}
-sanssouci_object_cal_limma <- fit(sanssouci_object, alpha = alpha, rowTestFUN = rowTestLimma_1vs1, verbose = TRUE, B = 1000)
+sanssouci_object_cal_limma <- fit(sanssouci_object, alpha = alpha, 
+                                  rowTestFUN = rowLimmaTest, B = 1000)
 sanssouci_object_cal_limma
 ```
 
 A partir de cet objet il est possible d'extraire les pvaleurs et le logFolchange par les fonction d'appel `pValues` et `foldChanges` respectivement. 
 
 ```{r}
-pval <- pValues(sanssouci_object_cal_limma)
-logFC <- foldChanges(sanssouci_object_cal_limma)
+pval <- as.vector(pValues(sanssouci_object_cal_limma))
+logFC <- as.vector(foldChanges(sanssouci_object_cal_limma))
 ```
 
 
@@ -414,7 +366,10 @@ Il est possible d'avoir une garantie post hoc sur n'importe quelle sélection fa
 pval_threshold <- 0.01
 Foldchange_thlogFC <- 0.04
 
-volcanoPlot(sanssouci_object_cal_limma, p = pval_threshold, r = Foldchange_thlogFC)
+VolcanoPlot_ggplot(pval = pval, logFC = logFC, 
+                   sanssouci_object = sanssouci_object_cal_limma,  
+                   th_pval = pval_threshold, 
+                   th_logfc = Foldchange_thlogFC)
 ```
 
 La filtration permets de sélectionner 19 protéines. Parmis ces protéines, la garanties statistiques à 50% permet de dire qu'il y a au moins 15 protéines qui sont réellement différentiellement exprimées. Cela revient à dire que la proportion de faux positifs n'excède pas 21%.
@@ -427,26 +382,10 @@ Proposition d'extraction et sorti : tableau data.frame qui contient toutes les p
 
 
 ```{r}
-sel_prot <- (pval < pval_threshold) & (abs(logFC) > Foldchange_thlogFC)
-
-names_prot <- rownames(obj[[length(obj)]])
-
-name_sel_prot <- names_prot[sel_prot]
-
-df_sel <- data.frame(name_prot = names_prot, 
-                     pval = as.vector(pval), 
-                     logFC = as.vector(logFC))
-pred_sel <- predict(sanssouci_object_cal_limma, S = which(sel_prot))
-name_col_sel <- paste("sel", ncol(df_sel)-2, sep = "_")
-df_sel[[name_col_sel]] <- as.vector(sel_prot*1)
-attributes(df_sel[[name_col_sel]]) <- list(thr_pval = pval_threshold, 
-                                           thr_logFC = Foldchange_thlogFC, 
-                                           n_sel = sum(sel_prot), 
-                                           FDP = pred_sel[["FDP"]], 
-                                           TP = pred_sel[["TP"]])
-
-head(df_sel)
-attributes(df_sel[[name_col_sel]])
+obj <- export2dapartoolshed(sanssouci_obj = sanssouci_object_cal_limma, 
+                            pval_threshold = pval_threshold, 
+                            Foldchange_thlogFC = Foldchange_thlogFC, 
+                            qfeature_obj = obj)
 ```
 
 

@@ -7,6 +7,7 @@
 VolcanoPlot_ggplot(
   pval,
   logFC,
+  sanssouci_object,
   th_pval = 1,
   th_qval = 1,
   th_logfc = 0,
@@ -20,6 +21,9 @@ This vector must have the same length as \code{logFC}.}
 
 \item{logFC}{A \code{numeric} vector of log(fold change) values.
 This vector must have the same length as \code{pval}.}
+
+\item{sanssouci_object}{A \code{SansSouci} object. Must be calibrated using the
+function \code{fit}.}
 
 \item{th_pval}{A \code{numeric(1)} which is the p-value threshold under which
 proteins are selected.}
@@ -36,7 +40,7 @@ threshold above which proteins are selected.}
 non differential proteins.}
 }
 \value{
-A volcano plot.
+A \code{ggplot2} object providing a volcano plot.
 }
 \description{
 Create a volcano plot

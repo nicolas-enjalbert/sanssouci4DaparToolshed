@@ -7,6 +7,8 @@
 #' This vector must have the same length as `logFC`.
 #' @param logFC A `numeric` vector of log(fold change) values.
 #' This vector must have the same length as `pval`.
+#' @param sanssouci_object A `SansSouci` object. Must be calibrated using the
+#' function `fit`.
 #' @param th_pval A `numeric(1)` which is the p-value threshold under which
 #' proteins are selected.
 #' @param th_qval A `numeric(1)` which is the q-value threshold under which
@@ -17,7 +19,7 @@
 #' @param pal A `character(2)` containing the colors used for differential and
 #' non differential proteins.
 #'
-#' @returns A volcano plot.
+#' @returns A `ggplot2` object providing a volcano plot.
 #'
 #' @import ggplot2
 #' @importFrom stats p.adjust
@@ -33,6 +35,7 @@
 
 VolcanoPlot_ggplot <- function(pval,
                                logFC,
+                               sanssouci_object,
                                th_pval = 1,
                                th_qval = 1,
                                th_logfc = 0,
@@ -52,6 +55,9 @@ VolcanoPlot_ggplot <- function(pval,
   }
   if (length(pval) != length(logFC)){
     stop("'pval' and 'logFC' must be of equal length.")
+  }
+  if(!inherits(sanssouci_object, "SansSouci")){
+    stop("sanssouci_object must be an object of class SansSouci.")
   }
   if (!is.numeric(th_pval)){
     stop("'th_pval' must be numeric.")
@@ -119,20 +125,21 @@ VolcanoPlot_ggplot <- function(pval,
   sel12 <- sort(union(sel1, sel2))
 
   ## post hoc bounds in selections
-  thr <- length(pval)
+  pval_post_hoc <- sanssouci::pValues(sanssouci_object)
+  thr_post_hoc <- sanssouci::thresholds(sanssouci_object)
 
   n1 <- length(sel1)
-  FP1 <- maxFP(pval[sel1], thr = thr)
+  FP1 <- maxFP(pval_post_hoc[sel1], thr = thr_post_hoc)
   TP1 <- n1 - FP1
   FDP1 <- round(FP1/max(n1, 1), 2)
 
   n2 <- length(sel2)
-  FP2 <- maxFP(pval[sel2], thr = thr)
+  FP2 <- maxFP(pval_post_hoc[sel2], thr = thr_post_hoc)
   TP2 <- n2 - FP2
   FDP2 <- round(FP2/max(n2, 1), 2)
 
   n12 <- length(sel12)
-  FP12 <- maxFP(pval[sel12], thr = thr)
+  FP12 <- maxFP(pval_post_hoc[sel12], thr = thr_post_hoc)
   TP12 <- n12 - FP12
   FDP12 <- round(FP12/max(n12, 1), 2)
 

@@ -22,8 +22,10 @@ Imports:
 Suggests: 
     BiocStyle,
     knitr,
+    Matrix,
     pak,
     Pirat,
+    PSMatch,
     QFeatures,
     rmarkdown,
     testthat (>= 3.0.0)
