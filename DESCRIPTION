@@ -12,18 +12,21 @@ License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
+Imports: 
+    DaparToolshed,
+    limma,
+    S4Vectors,
+    sanssouci
 Suggests: 
     BiocStyle,
     knitr,
     pak,
     Pirat,
+    QFeatures,
     rmarkdown,
+    SummarizedExperiment,
     testthat (>= 3.0.0)
 Config/testthat/edition: 3
-Imports: 
-    DaparToolshed,
-    limma,
-    sanssouci
 Remotes:
     sanssouci-org/sanssouci,
     edyp-lab/DaparToolshed

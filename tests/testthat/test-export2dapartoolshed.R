@@ -1,3 +1,5 @@
+library(sanssouci)
+
 numdata <- data.frame(S1 = c(2, 5, 9, 10, 7, 8, 6, 8, 6, 7),
                       S2 = c(7, 8, 5, 5, 7, 9, 9, 4, 9, 1),
                       S3 = c(4, 1, 4, 9, 6, 8, 5, 3, 4, 3),
@@ -65,7 +67,7 @@ test_that("Unit/fctal test of export2dapartoolshed : good", {
                                sanssouci_obj = sanssouci_obj,
                                pval_threshold = pval_thr,
                                Foldchange_thlogFC = logFC_thr)
-  expect_equal(class(res1), class(qfeature_obj))
+  expect_true(inherits(res1, class(qfeature_obj)))
   res <- metadata(res1)$posthoc_selection
   expect_true(is.data.frame(res))
   expect_equal(colnames(res), c("name_prot", "pval", "logFC", "sel_1"))
@@ -103,7 +105,7 @@ test_that("Unit/fctal test of export2dapartoolshed : good", {
                                sanssouci_obj = sanssouci_obj,
                                pval_threshold = pval_thr2,
                                Foldchange_thlogFC = logFC_thr2)
-  expect_equal(class(res2), class(qfeature_obj))
+  expect_true(inherits(res2, class(qfeature_obj)))
   res <- metadata(res2)$posthoc_selection
   expect_true(is.data.frame(res))
   expect_equal(colnames(res), c("name_prot", "pval", "logFC", "sel_1", "sel_2"))

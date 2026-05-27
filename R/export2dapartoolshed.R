@@ -19,6 +19,10 @@
 #' returns a data.frame. If not, the data.frame is stored in
 #' metadata(qfeature_obj)$posthoc_selection
 #'
+#' @import sanssouci
+#' @import DaparToolshed
+#' @importFrom S4Vectors metadata metadata<-
+#'
 #' @export
 #'
 #' @examples
@@ -26,36 +30,36 @@
 #' NULL
 export2dapartoolshed <- function(sanssouci_obj, pval_threshold,
                                  Foldchange_thlogFC, qfeature_obj = NULL){
-  if(class(sanssouci_obj) != "SansSouci") {
+  if(!inherits(sanssouci_obj, "SansSouci")) {
     stop("sanssouci_obj must be a 'SansSouci' class object.")
   }
 
   if(!is.null(qfeature_obj)){
-  if(class(qfeature_obj) != "QFeatures") {
-    stop("qfeature_obj must be a 'QFeatures' class object.")
-  }
+    if(!inherits(qfeature_obj, "QFeatures")) {
+      stop("qfeature_obj must be a 'QFeatures' class object.")
+    }
 
-  previous_selection <- metadata(qfeature_obj)$posthoc_selection
-  if(!is.null(previous_selection)){
-    if(attr(previous_selection, "nb_permutation") != sanssouci_obj$parameters$B){
-      stop(paste("Number of permutation used must be ",
-                 attr(previous_selection, "nb_permutation"), "as previously saved.")
-      )
+    previous_selection <- metadata(qfeature_obj)$posthoc_selection
+    if(!is.null(previous_selection)){
+      if(attr(previous_selection, "nb_permutation") != sanssouci_obj$parameters$B){
+        stop(paste("Number of permutation used must be ",
+                   attr(previous_selection, "nb_permutation"), "as previously saved.")
+        )
+      }
+      if(attr(previous_selection, "rowTestFun") != sanssouci_obj$parameters$funName){
+        stop(paste("Test function used must be ",
+                   attr(previous_selection, "rowTestFun"), "as previously saved.")
+        )
+      }
+      df_sel <- previous_selection
     }
-    if(attr(previous_selection, "rowTestFun") != sanssouci_obj$parameters$funName){
-      stop(paste("Test function used must be ",
-                 attr(previous_selection, "rowTestFun"), "as previously saved.")
-      )
-    }
-    df_sel <- previous_selection
-  }
 
   } else {
     previous_selection <- NULL
   }
 
-  pval <- pValues(sanssouci_obj)
-  logFC <- foldChanges(sanssouci_obj)
+  pval <- sanssouci::pValues(sanssouci_obj)
+  logFC <- sanssouci::foldChanges(sanssouci_obj)
 
 
   sel_prot <- (pval < pval_threshold) & (abs(logFC) > Foldchange_thlogFC)
@@ -83,9 +87,9 @@ export2dapartoolshed <- function(sanssouci_obj, pval_threshold,
   if(is.null(qfeature_obj)){
     return(df_sel)
   } else {
-  metadata(qfeature_obj)$posthoc_selection <- df_sel
+    metadata(qfeature_obj)$posthoc_selection <- df_sel
 
-  return(qfeature_obj)
+    return(qfeature_obj)
   }
 }
 
