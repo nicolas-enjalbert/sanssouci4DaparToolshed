@@ -366,7 +366,9 @@ Il est possible d'avoir une garantie post hoc sur n'importe quelle sélection fa
 pval_threshold <- 0.01
 Foldchange_thlogFC <- 0.04
 
-VolcanoPlot_ggplot(pval = pval, logFC = logFC, th_pval = pval_threshold, 
+VolcanoPlot_ggplot(pval = pval, logFC = logFC, 
+                   sanssouci_object = sanssouci_object_cal_limma,  
+                   th_pval = pval_threshold, 
                    th_logfc = Foldchange_thlogFC)
 ```
 
