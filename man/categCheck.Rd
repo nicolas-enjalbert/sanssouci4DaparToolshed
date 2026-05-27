@@ -14,3 +14,4 @@ categCheck(categ, n)
 \description{
 Check design vector
 }
+\keyword{internal}
