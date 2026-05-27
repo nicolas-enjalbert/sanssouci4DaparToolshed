@@ -1,6 +1,6 @@
 Package: sanssouci4DaparToolshed
 Title: Using sanssouci in DaparToolshed proteomic pipeline
-Version: 0.0.0.9000
+Version: 0.99.01
 Authors@R: c(
     person("Nicolas", "Enjalbert Courrech", , "nicolas.enjalbert-courrech@inrae.fr", role = c("aut", "cre")),
     person("Manon", "Gaudin", , "manon.gaudin@cea.fr", role = c("aut"))
@@ -14,9 +14,11 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
 Imports: 
     DaparToolshed,
+    ggplot2,
     limma,
     S4Vectors,
-    sanssouci
+    sanssouci,
+    SummarizedExperiment
 Suggests: 
     BiocStyle,
     knitr,
@@ -24,10 +26,12 @@ Suggests:
     Pirat,
     QFeatures,
     rmarkdown,
-    SummarizedExperiment,
     testthat (>= 3.0.0)
-Config/testthat/edition: 3
 Remotes:
     sanssouci-org/sanssouci,
     edyp-lab/DaparToolshed
 VignetteBuilder: knitr
+biocViews: 
+    Proteomics,
+    MassSpectrometry,
+    Visualization
