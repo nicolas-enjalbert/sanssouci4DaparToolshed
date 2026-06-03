@@ -7,18 +7,18 @@
 rowLimmaTest(X, categ, alternative = c("two.sided"))
 }
 \arguments{
-\item{X}{A \code{m x n} numeric matrix whose rows correspond to variables
-and columns to observations}
+\item{X}{A \code{m x n} \verb{numeric matrix} whose rows correspond to variables
+and columns to observations.}
 
-\item{categ}{Either a numeric vector of \code{n} categories in \eqn{0, 1} for
+\item{categ}{Either a \verb{numeric vector} of \code{n} categories in \eqn{0, 1} for
 the observations, or a \code{n x B} matrix stacking \code{B} such vectors
-(typically permutations of an original vector of size \code{n})}
+(typically permutations of an original vector of size \code{n}).}
 
-\item{alternative}{DEPRECATED  A character string specifying the alternative hypothesis
+\item{alternative}{DEPRECATED  A \verb{character string} specifying the alternative hypothesis
 "two.sided".}
 }
 \value{
-A list containing the following components:
+A \code{list} containing the following components:
 \describe{
 \item{p.value}{the p-values for the tests}
 \item{estimate}{the mean difference between groups}}
@@ -33,4 +33,8 @@ n <- 38
 mat <- matrix(rnorm(m * n), ncol = n)
 categ <- rep(c(0, 1), times = c(27, n - 27))
 res <- rowLimmaTest(mat, categ, alternative = "greater")
+
+}
+\author{
+Nicolas Enjalbert Courrech
 }

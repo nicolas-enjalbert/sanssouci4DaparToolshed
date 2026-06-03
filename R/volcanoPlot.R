@@ -1,12 +1,10 @@
 #' @title Volcano plot
 #'
 #' @description
-#' Create a volcano plot
+#' Create a volcano plot from a `Sanssouci` object. This volcano plot is made
+#' with `ggplot2` and indicates the number of selected proteins with the given
+#' thresholds, as well as the minimal number of true positives.
 #'
-#' @param pval A `numeric` vector of p-value values.
-#' This vector must have the same length as `logFC`.
-#' @param logFC A `numeric` vector of log(fold change) values.
-#' This vector must have the same length as `pval`.
 #' @param sanssouci_object A `SansSouci` object. Must be calibrated using the
 #' function `fit`.
 #' @param th_pval A `numeric(1)` which is the p-value threshold under which
@@ -22,68 +20,78 @@
 #' @returns A `ggplot2` object providing a volcano plot.
 #'
 #' @import ggplot2
+#' @import sanssouci
 #' @importFrom stats p.adjust
 #'
-#' @author Manon Gaudin
+#' @author Manon Gaudin, Nicolas Enjalbert Courrech
 #'
 #' @export
 #'
 #' @examples
-#' #xxx a faire
-#' NULL
+#' n <- 20
+#' p <- 32
+#' X <- matrix(rnorm(n * p), ncol = n)
+#' group <- rep(c(1, 0), length.out = n)
+#' ss_obj <- SansSouci(Y = X, group = group)
+#' ss_obj_fit <- fit(ss_obj, alpha = 0.5, B = 100)
 #'
-
-VolcanoPlot_ggplot <- function(pval,
-                               logFC,
-                               sanssouci_object,
+#' VolcanoPlot_ggplot(
+#'   sanssouci_object = ss_obj_fit,
+#'   th_pval = 0.5,
+#'   th_logfc = 0.05
+#' )
+#'
+VolcanoPlot_ggplot <- function(sanssouci_object,
                                th_pval = 1,
                                th_qval = 1,
                                th_logfc = 0,
                                conditions = NULL,
                                pal = NULL) {
-  if (missing(pval)){
-    stop("'pval' is required.")
+  if (missing(sanssouci_object)) {
+    stop("'sanssouci_object' is required.")
   }
-  if (!is.numeric(pval)){
-    stop("'pval' must be an object of class numeric.")
+  if (!inherits(sanssouci_object, "SansSouci")) {
+    stop("'sanssouci_object' must be an object of class SansSouci.")
   }
-  if (missing(logFC)){
-    stop("'logFC' is required.")
+  if (is.null(pValues(sanssouci_object))) {
+    stop("'sanssouci_object' has no p-values associated.
+         ('pValues(sanssouci_object)' returns NULL)")
   }
-  if (!is.numeric(logFC)){
-    stop("'logFC' must be an object of class numeric.")
+  if (is.null(foldChanges(sanssouci_object))) {
+    stop("'sanssouci_object' has no fold-changes associated.
+         ('foldChanges(sanssouci_object)' returns NULL)")
   }
-  if (length(pval) != length(logFC)){
-    stop("'pval' and 'logFC' must be of equal length.")
+  if (length(pValues(sanssouci_object)) != length(foldChanges(sanssouci_object))) {
+    stop("p-values and fold-changes associated to 'sanssouci_object'
+         must be of equal length.
+    ('pValues(sanssouci_object)' and 'foldChanges(sanssouci_object)'
+         are not of equal length)")
   }
-  if(!inherits(sanssouci_object, "SansSouci")){
-    stop("sanssouci_object must be an object of class SansSouci.")
-  }
-  if (!is.numeric(th_pval)){
+  if (!is.numeric(th_pval)) {
     stop("'th_pval' must be numeric.")
   }
-  if (length(th_pval) != 1){
+  if (length(th_pval) != 1) {
     stop("'th_pval' must be of length 1.")
   }
-  if ((th_pval < 0) | (th_pval > 1)){
+  if ((th_pval < 0) || (th_pval > 1)) {
     stop("'th_pval' must be between 0 and 1.")
   }
-  if (!is.numeric(th_qval)){
+  if (!is.numeric(th_qval)) {
     stop("'th_qval' must be numeric.")
   }
-  if (length(th_qval) != 1){
+  if (length(th_qval) != 1) {
     stop("'th_qval' must be of length 1.")
   }
-  if ((th_qval < 0) | (th_qval > 1)){
+  if ((th_qval < 0) || (th_qval > 1)) {
     stop("'th_qval' must be between 0 and 1.")
   }
-  if (!is.numeric(th_logfc)){
+  if (!is.numeric(th_logfc)) {
     stop("'th_logfc' must be numeric.")
   }
-  if (length(th_logfc) != 1){
+  if (length(th_logfc) != 1) {
     stop("'th_logfc' must be of length 1.")
   }
-  if (th_logfc < 0){
+  if (th_logfc < 0) {
     stop("'th_logfc' must be positive.")
   }
 
@@ -91,9 +99,9 @@ VolcanoPlot_ggplot <- function(pval,
     warning("Filtering both on p-values and BH-adjusted p-values")
   }
 
-  if (is.null(conditions)){
+  if (is.null(conditions)) {
     title <- ""
-  } else if (!is.null(conditions) & length(conditions) != 2) {
+  } else if (!is.null(conditions) && length(conditions) != 2) {
     warning("'conditions' must be of length 2. No title added.")
     title <- ""
   } else {
@@ -109,14 +117,17 @@ VolcanoPlot_ggplot <- function(pval,
     pal <- list(In = pal[1], Out = pal[2])
   }
 
+  pval <- as.vector(sanssouci::pValues(sanssouci_object))
+  logFC <- as.vector(sanssouci::foldChanges(sanssouci_object))
+
   logpval <- -log10(pval)
 
-  adjp <- p.adjust(pval, method = "BH")  ## adjusted p-values
-  pval_sel <- which((adjp <= th_qval) &           ## selected by q-value
-                   (pval <= th_pval))        ##          or p-value
+  adjp <- p.adjust(pval, method = "BH") ## adjusted p-values
+  pval_sel <- which((adjp <= th_qval) & ## selected by q-value
+    (pval <= th_pval)) ##          or p-value
   pval_thr <- Inf
   if (length(pval_sel) > 0) {
-    pval_thr <- min(logpval[pval_sel])       ## threshold on the log(p-value) scale
+    pval_thr <- min(logpval[pval_sel]) ## threshold on the log(p-value) scale
   }
 
   ## gene selections
@@ -128,60 +139,81 @@ VolcanoPlot_ggplot <- function(pval,
   pval_post_hoc <- sanssouci::pValues(sanssouci_object)
   thr_post_hoc <- sanssouci::thresholds(sanssouci_object)
 
-  n1 <- length(sel1)
-  FP1 <- maxFP(pval_post_hoc[sel1], thr = thr_post_hoc)
-  TP1 <- n1 - FP1
-  FDP1 <- round(FP1/max(n1, 1), 2)
-
-  n2 <- length(sel2)
-  FP2 <- maxFP(pval_post_hoc[sel2], thr = thr_post_hoc)
-  TP2 <- n2 - FP2
-  FDP2 <- round(FP2/max(n2, 1), 2)
+  # n1 <- length(sel1)
+  # FP1 <- maxFP(pval_post_hoc[sel1], thr = thr_post_hoc)
+  # TP1 <- n1 - FP1
+  # FDP1 <- round(FP1 / max(n1, 1), 2)
+  #
+  # n2 <- length(sel2)
+  # FP2 <- maxFP(pval_post_hoc[sel2], thr = thr_post_hoc)
+  # TP2 <- n2 - FP2
+  # FDP2 <- round(FP2 / max(n2, 1), 2)
 
   n12 <- length(sel12)
   FP12 <- maxFP(pval_post_hoc[sel12], thr = thr_post_hoc)
   TP12 <- n12 - FP12
-  FDP12 <- round(FP12/max(n12, 1), 2)
+  FDP12 <- round(FP12 / max(n12, 1), 2)
 
 
   df <- data.frame(pval = logpval, logFC = logFC)
 
   # Significant / non-significant groups
   df$isDiff <- ifelse(df$pval >= pval_thr & abs(df$logFC) >= th_logfc,
-                      "In",
-                      "Out")
+    "In",
+    "Out"
+  )
 
-  if (title != ""){
-    title <- paste0(title, " - ", n12, " proteins selected \n",
-                    "At least ", TP12, " true positives (FDP <= ", FDP12, ")")
+  if (title != "") {
+    title <- paste0(
+      title, " - ", n12, " proteins selected \n",
+      "At least ", TP12, " true positives (FDP <= ", FDP12, ")"
+    )
   } else {
-    title <- paste0(n12, " proteins selected \n",
-                    "At least ", TP12, " true positives (FDP <= ", FDP12, ")")
+    title <- paste0(
+      n12, " proteins selected \n",
+      "At least ", TP12, " true positives (FDP <= ", FDP12, ")"
+    )
   }
 
-  p <- ggplot2::ggplot(df,
-                       ggplot2::aes(x = logFC, y = pval, color = isDiff)) +
-    ggplot2::geom_hline(yintercept = pval_thr,
-                        linetype = "dashed",
-                        color = "grey") +
-    ggplot2::geom_vline(xintercept = c(-th_logfc, th_logfc),
-                        linetype = "dashed",
-                        color = "grey") +
-    ggplot2::geom_hline(yintercept = 0,
-                        linetype = "solid",
-                        color = "black") +
-    ggplot2::geom_vline(xintercept = 0,
-                        linetype = "solid",
-                        color = "black") +
+  p <- ggplot2::ggplot(
+    df,
+    ggplot2::aes(x = logFC, y = pval, color = isDiff)
+  ) +
+    ggplot2::geom_hline(
+      yintercept = pval_thr,
+      linetype = "dashed",
+      color = "grey"
+    ) +
+    ggplot2::geom_vline(
+      xintercept = c(-th_logfc, th_logfc),
+      linetype = "dashed",
+      color = "grey"
+    ) +
+    ggplot2::geom_hline(
+      yintercept = 0,
+      linetype = "solid",
+      color = "black"
+    ) +
+    ggplot2::geom_vline(
+      xintercept = 0,
+      linetype = "solid",
+      color = "black"
+    ) +
     ggplot2::geom_point(alpha = 0.8, size = 2) +
     ggplot2::scale_color_manual(values = c(In = pal$In, Out = pal$Out)) +
-    ggplot2::labs(title = title,
-                  x = "logFC",
-                  y = "-log10(pValue)") +
+    ggplot2::labs(
+      title = title,
+      x = "logFC",
+      y = "-log10(pValue)"
+    ) +
     ggplot2::theme_minimal() +
-    ggplot2::theme(plot.title = ggplot2::element_text(hjust = 0.5,
-                                                      size = 16),
-                   legend.position = "none")
+    ggplot2::theme(
+      plot.title = ggplot2::element_text(
+        hjust = 0.5,
+        size = 16
+      ),
+      legend.position = "none"
+    )
 
   return(p)
 }

@@ -9,8 +9,10 @@ test_that("Sanity checks of 'categCheck' throw errors when expected to", {
 
   expect_no_error(categCheck(c(0, 1, 0, 1), 4))
 
-  expect_error(categCheck(c(1,2,1,2), 4), regexp =
-               "should consist only of '0' and '1'", fixed = FALSE)
+  expect_error(categCheck(c(1, 2, 1, 2), 4),
+    regexp =
+      "should consist only of '0' and '1'", fixed = FALSE
+  )
 
   expect_no_error(categCheck(c(1, 2, 3, 4), 4))
 })

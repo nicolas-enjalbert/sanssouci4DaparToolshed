@@ -7,11 +7,24 @@
 categCheck(categ, n)
 }
 \arguments{
-\item{categ}{a vector of design. Should consist only of '0' and '1'. If not return an error.}
+\item{categ}{A vector of design. Should consist only of '0' and '1'.
+If not return an error.}
 
-\item{n}{expected length of categ}
+\item{n}{A \code{numeric(1)}, expected length of categ.}
+}
+\value{
+NULL if the design vector is valid, or an error if the design
+vector is invalid.
 }
 \description{
-Check design vector
+Check whether the design vector is valid.
+}
+\examples{
+group <- rep(c("1", "0"), times = c(10, 4))
+categCheck(group, length(group))
+
+}
+\author{
+Nicolas Enjalbert Courrech
 }
 \keyword{internal}

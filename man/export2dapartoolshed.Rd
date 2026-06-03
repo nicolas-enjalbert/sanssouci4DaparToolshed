@@ -12,33 +12,58 @@ export2dapartoolshed(
 )
 }
 \arguments{
-\item{sanssouci_obj}{object of class 'SansSouci' which must be calibrated
-(see fit function in sanssouci package)}
+\item{sanssouci_obj}{An object of class \code{SansSouci} which must be calibrated
+(see fit function in sanssouci package).}
 
-\item{pval_threshold}{numeric, threshold on pvalues}
+\item{pval_threshold}{A \code{numeric(1)}, threshold on pvalues.}
 
-\item{Foldchange_thlogFC}{numeric, threshold on log Fold Change}
+\item{Foldchange_thlogFC}{A \code{numeric(1)}, threshold on log Fold Change.}
 
-\item{qfeature_obj}{object of class 'QFeature'. If NULL, this function
-returns a data.frame. If not, the data.frame is stored in
-metadata(qfeature_obj)$posthoc_selection}
+\item{qfeature_obj}{An object of class \code{QFeature}.}
 }
 \value{
-a data.frame with the names of the proteins (name_prot),
-the pvalues (pval), the logfoldchange (logFC) and binary columns for each
-saved selection. Each selection column includes the following attributes:
-the number of selected proteins, the thresholds used, and the post hoc bounds
-on the selection. The data.frame includes the following attributes :
-the number of permutation used in sanssouci calibration (B) and the test
-function.
-If qfeature_objec os NULL, this function
-returns a data.frame. If not, the data.frame is stored in
-metadata(qfeature_obj)$posthoc_selection
+If qfeature_obj is NULL, returns a \code{data.frame} containing at least
+4 columns :
+\itemize{
+\item name_prot : the names of the proteins
+\item pval : the pvalues
+\item logFC : the logFoldChange
+\item sel_n : a binary column for each of the n saved selection
+}
+
+Each selection column includes the following attributes:
+\itemize{
+\item the number of selected proteins
+\item the thresholds used
+\item the post hoc bounds on the selection.
+}
+
+The data.frame includes the following attributes :
+\itemize{
+\item the number of permutation used in sanssouci calibration (B)
+\item the test function.
+}
+
+If qfeature_obj is not NULL, returns a \code{QFeature} with the previously
+described data.frame stored in \code{metadata(qfeature_obj)$posthoc_selection}.
 }
 \description{
-Extract selection and post hoc bound to QFeature object
+Extract selection and post hoc bound form a \code{Sanssouci} object to either a
+\code{data.frame} a \code{QFeatures}.
+This function can be executed multiple times on a given \code{QFeatures} with
+different thresholds.
 }
 \examples{
-#xxx a faire
-NULL
+n <- 20
+p <- 32
+X <- matrix(rnorm(n * p), ncol = n)
+group <- rep(c(1, 0), length.out = n)
+ss_obj <- SansSouci(Y = X, group = group)
+ss_obj_fit <- fit(ss_obj, alpha = 0.5, B = 100)
+
+export2dapartoolshed(ss_obj_fit, 1, 1)
+
+}
+\author{
+Nicolas Enjalbert Courrech
 }

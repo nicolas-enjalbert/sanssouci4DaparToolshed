@@ -5,8 +5,6 @@
 \title{Volcano plot}
 \usage{
 VolcanoPlot_ggplot(
-  pval,
-  logFC,
   sanssouci_object,
   th_pval = 1,
   th_qval = 1,
@@ -16,12 +14,6 @@ VolcanoPlot_ggplot(
 )
 }
 \arguments{
-\item{pval}{A \code{numeric} vector of p-value values.
-This vector must have the same length as \code{logFC}.}
-
-\item{logFC}{A \code{numeric} vector of log(fold change) values.
-This vector must have the same length as \code{pval}.}
-
 \item{sanssouci_object}{A \code{SansSouci} object. Must be calibrated using the
 function \code{fit}.}
 
@@ -43,13 +35,25 @@ non differential proteins.}
 A \code{ggplot2} object providing a volcano plot.
 }
 \description{
-Create a volcano plot
+Create a volcano plot from a \code{Sanssouci} object. This volcano plot is made
+with \code{ggplot2} and indicates the number of selected proteins with the given
+thresholds, as well as the minimal number of true positives.
 }
 \examples{
-#xxx a faire
-NULL
+n <- 20
+p <- 32
+X <- matrix(rnorm(n * p), ncol = n)
+group <- rep(c(1, 0), length.out = n)
+ss_obj <- SansSouci(Y = X, group = group)
+ss_obj_fit <- fit(ss_obj, alpha = 0.5, B = 100)
+
+VolcanoPlot_ggplot(
+  sanssouci_object = ss_obj_fit,
+  th_pval = 0.5,
+  th_logfc = 0.05
+)
 
 }
 \author{
-Manon Gaudin
+Manon Gaudin, Nicolas Enjalbert Courrech
 }
