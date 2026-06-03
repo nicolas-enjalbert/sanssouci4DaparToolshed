@@ -28,6 +28,7 @@ Suggests:
     PSMatch,
     QFeatures,
     rmarkdown,
+    scpdata,
     testthat (>= 3.0.0)
 Remotes:
     sanssouci-org/sanssouci,
