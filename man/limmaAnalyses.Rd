@@ -7,20 +7,24 @@
 limmaAnalyses(Y, groups)
 }
 \arguments{
-\item{Y}{a matrix (p*n) with variables to test in rows and samples in column}
+\item{Y}{A matrix (p*n) with variables to test in rows and samples in column.}
 
-\item{groups}{a binary vector (of size n) of two conditions samples}
+\item{groups}{A binary vector (of size n) of two conditions samples.}
 }
 \value{
-a list with 'p.values' a vector of size p of raw pvalues
-and 'logFC' a vector of size p of log Fold Change, both from Limma pipeline
+A list with 'p.values' a vector of size p of raw pvalues
+and 'logFC' a vector of size p of log Fold Change, both from Limma pipeline.
 }
 \description{
 Wrapper of limma DEA pipeline
 }
 \examples{
 Y <- matrix(rnorm(50), ncol = 5)
-groups = c(1,1,0,0,0)
+groups <- c(1, 1, 0, 0, 0)
 res <- limmaAnalyses(Y, groups)
+
+}
+\author{
+Nicolas Enjalbert Courrech
 }
 \keyword{internal}

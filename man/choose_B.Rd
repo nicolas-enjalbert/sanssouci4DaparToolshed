@@ -2,23 +2,27 @@
 % Please edit documentation in R/choose_B.R
 \name{choose_B}
 \alias{choose_B}
-\title{recommended value for B}
+\title{Recommended value for B}
 \usage{
 choose_B(group)
 }
 \arguments{
-\item{group}{a vector of '1' and '0}
+\item{group}{A vector of '1' and '0}
 }
 \value{
-a numeric, the recommended value of B
+A \code{numeric(1)}, the recommended value of B
 }
 \description{
 Provides a recommended value for B, the number of permutation. It gives the
 minimum value between 1000 and the maximal number of possible permutation for
 the design in group. The maximal number of possible permutation is
-\deqn{\binom{n_1 + n_0}{n_1}}, with \(n_1\) and \(n_0\) respectively the
+\deqn{\binom{n_1 + n_0}{n_1}}, with \eqn{n_1} and \eqn{n_0} respectively the
 number of 1 and 0 in the vector.
 }
 \examples{
 choose_B(rep(c("1", "0"), times = c(10, 4)))
+
+}
+\author{
+Nicolas Enjalbert Courrech
 }

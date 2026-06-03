@@ -52,10 +52,12 @@ if (!requireNamespace("BiocManager", quietly = TRUE))
     install.packages("BiocManager")
 if (!requireNamespace("DaparToolshed", quietly = TRUE)) pak::pak("edyp-lab/DaparToolshed")
 if (!requireNamespace("Pirat", quietly = TRUE)) pak::pak("Pirat")
+if (!requireNamespace("scpdata", quietly = TRUE)) pak::pak("scpdata")
 ```
 
 ```{r setup, message = FALSE}
 library(DaparToolshed)
+library(scpdata)
 ```
 
 
@@ -66,11 +68,43 @@ For testing purposes, the `DaparToolshedData` package is accompanied with severa
 The dataset used in this vignette is an extract from the `Exp1_R25_pept` dataset in the `DaparToolshedData` package (@giai_gianetto_calibration_2016). It comprises 500 peptides and 6 samples, divided into 2 conditions ("25fmol" and "10fmol"). 
 
 ```{r dataset}
-data.file <- system.file("extdata/data", "Exp1_R25_pept_100.txt", package="DaparToolshed")
-data <- read.table(data.file, header=TRUE, sep="\t", as.is=TRUE, stringsAsFactors = FALSE)
-  
-sample.file <- system.file("extdata/data", "samples_Exp1_R25.txt", package="DaparToolshed")
-sample <- read.table(sample.file, header=TRUE, sep="\t", as.is=TRUE, stringsAsFactors = FALSE)
+dta <- dou2019_mouse()
+## PREPARE DATA -----
+#keep only wanted conditions
+dtacond <- c("C10", "SVEC", "RAW")
+colselect <- which(SummarizedExperiment::colData(dta)$SampleType %in% dtacond)
+
+#create info for coldata
+nomcoldta <- colnames(SummarizedExperiment::assay(dta[[13]][, colselect]))
+nomcond <- SummarizedExperiment::colData(dta)[which(SummarizedExperiment::colData(dta)$SampleType %in% dtacond), "SampleType"]
+#met tt ensemble
+sampledta <- data.frame(Sample.name = nomcoldta, 
+                        Condition = nomcond, 
+                        Bio.Rep = seq_along(nomcoldta))
+sampledta$Sample.name <- gsub(".", "_", sampledta$Sample.name, fixed = TRUE)
+sampledta <- sampledta[order(sampledta$Condition), ]
+
+
+#select assay
+assaydta <- SummarizedExperiment::assay(dta[[13]][, colselect])
+colnames(assaydta) <- gsub(".", "_", colnames(assaydta), fixed = TRUE)
+rownames(assaydta) <- seq_len(nrow(assaydta))
+
+#get rowdata
+rowdta <- SummarizedExperiment::rowData(dta[[13]])
+rownames(rowdta) <- seq_len(nrow(rowdta))
+
+#create columns for metacell
+metadta <- as.data.frame(replicate(ncol(assaydta), 
+                                   rep("By MS/MS", nrow(assaydta)), 
+                                   simplify = FALSE))
+metadta <- setNames(metadta, paste0("Id_", colnames(assaydta)))
+
+#merge together
+quantdta <- cbind(assaydta, rowdta, metadta)
+quantdta <- as.data.frame(quantdta)
+colnames(quantdta) <- gsub(".", "_", colnames(quantdta), fixed = TRUE)
+
 ```
 
 `DaparToolshed` uses `MultiAssayExperiment`, `SummarizedExperiment` and `QFeatures` data structures.
@@ -82,18 +116,20 @@ The quantitative data do not need to be logged beforehand, as setting `logData =
 
 
 ```{r importdata, message = FALSE}
-obj <- createQFeatures(data = data,
-  file = 'Exp1_R25_pept',
-                       sample = sample,
-                       indQData = 56:61,
-                       keyId = "Sequence",
-                       indexForMetacell = 43:48,
+obj <- createQFeatures(data = quantdta,
+                       file = 'dou2019_mouse',
+                       sample = sampledta,
+                       indQData = 1:72,
+                       keyId = "sequence",
+                       indexForMetacell = 87:158,
                        logData = TRUE,
                        force.na = TRUE,
                        typeDataset = "peptide",
-                       parentProtId = "Protein_group_IDs",
+                       parentProtId = "DatabaseAccess",
                        analysis = "Pept_Data",
                        software = "maxquant")
+
+obj <- obj[1:1000,]
 
 obj
 ```
@@ -121,14 +157,22 @@ head(SummarizedExperiment::rowData(obj[[length(obj)]]), n = 3)
 To apply a filter based on tags, the `FunctionFilter()` function should be used. The functions `QFeatures::filterFeature()` and `QFeatures::VariableFilter()` can be used to create filters from metadata.
 
 ```{r filters, message = FALSE}
- #create filter to remove empty lines
+#create filter to remove empty lines
 filter_emptyline <- FunctionFilter("qMetacellWholeLine",
-                                  cmd = 'delete',
-                                  pattern = 'Missing MEC')
-  
- #create filter to remove contaminant
-filter_contaminant <- QFeatures::VariableFilter(field = "Potential_contaminant",
-                                                value = "+",
+                                   cmd = 'delete',
+                                   pattern = 'Missing MEC')
+#filter lines with too many NA is every condition
+filter_manyNA <- FunctionFilter('qMetacellOnConditions',
+                                cmd = 'delete',
+                                mode = 'AllCond',
+                                pattern = c('Missing MEC', 'Missing POV'),
+                                conds = SummarizedExperiment::colData(obj)$Condition,
+                                percent = TRUE,
+                                th = 0.8,
+                                operator = '>')
+#create filter to remove contaminant
+filter_contaminant <- QFeatures::VariableFilter(field = "isContaminant",
+                                                value = "TRUE",
                                                 condition = "==",
                                                 not = TRUE)
 ```
@@ -140,7 +184,7 @@ Doing so creates the filter but does not apply them to the data. All created fil
 obj <- filterFeaturesOneSE(object = obj,
                            i = length(obj),
                            name = "Filtered",
-                           filters = list(filter_emptyline, filter_contaminant))
+                           filters = list(filter_emptyline, filter_manyNA, filter_contaminant))
 ```
 
 It is advised to remove proteins that no longer have an associated peptide following this filtering from the adjacency matrix in order to facilitate the subsequent aggregation step.
@@ -325,7 +369,12 @@ La première étape est d'initialiser l'objet `SansSouci`. Attention, ici les gr
 ```{r}
 library(sanssouci4DaparToolshed)
 library(sanssouci)
-sanssouci_object <- wrapper_QFtoSansSouci(obj)
+
+# selectionne 2 conditions
+indexcond <- which(colData(obj)$Condition %in% c("C10", "RAW"))
+obj_selectcond <- obj[, indexcond]
+
+sanssouci_object <- wrapper_QFtoSansSouci(obj_selectcond)
 ```
 
 ### Hypothesis testing and post hoc calibration 
@@ -366,13 +415,12 @@ Il est possible d'avoir une garantie post hoc sur n'importe quelle sélection fa
 pval_threshold <- 0.01
 Foldchange_thlogFC <- 0.04
 
-VolcanoPlot_ggplot(pval = pval, logFC = logFC, 
-                   sanssouci_object = sanssouci_object_cal_limma,  
+VolcanoPlot_ggplot(sanssouci_object = sanssouci_object_cal_limma,  
                    th_pval = pval_threshold, 
                    th_logfc = Foldchange_thlogFC)
 ```
 
-La filtration permets de sélectionner 19 protéines. Parmis ces protéines, la garanties statistiques à 50% permet de dire qu'il y a au moins 15 protéines qui sont réellement différentiellement exprimées. Cela revient à dire que la proportion de faux positifs n'excède pas 21%.
+La filtration permets de sélectionner 39 protéines. Parmis ces protéines, la garanties statistiques à 50% permet de dire qu'il y a au moins 35 protéines qui sont réellement différentiellement exprimées. Cela revient à dire que la proportion de faux positifs n'excède pas 10%.
 
 [heu on a forcé le volcano plot a utiliser le terme gène. On refait avec ggplot2 ?]
 
@@ -382,10 +430,12 @@ Proposition d'extraction et sorti : tableau data.frame qui contient toutes les p
 
 
 ```{r}
-obj <- export2dapartoolshed(sanssouci_obj = sanssouci_object_cal_limma, 
+obj_selectcond <- export2dapartoolshed(sanssouci_obj = sanssouci_object_cal_limma, 
                             pval_threshold = pval_threshold, 
                             Foldchange_thlogFC = Foldchange_thlogFC, 
-                            qfeature_obj = obj)
+                            qfeature_obj = obj_selectcond)
+
+head(metadata(obj_selectcond)$posthoc_selection)
 ```
 
 
