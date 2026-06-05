@@ -15,6 +15,7 @@ RoxygenNote: 8.0.0
 Imports: 
     DaparToolshed,
     ggplot2,
+    plotly,
     limma,
     S4Vectors,
     sanssouci,
@@ -28,6 +29,7 @@ Suggests:
     PSMatch,
     QFeatures,
     rmarkdown,
+    scpdata,
     testthat (>= 3.0.0)
 Remotes:
     sanssouci-org/sanssouci,

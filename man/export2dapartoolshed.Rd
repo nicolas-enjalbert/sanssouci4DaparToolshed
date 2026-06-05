@@ -58,8 +58,8 @@ n <- 20
 p <- 32
 X <- matrix(rnorm(n * p), ncol = n)
 group <- rep(c(1, 0), length.out = n)
-ss_obj <- SansSouci(Y = X, group = group)
-ss_obj_fit <- fit(ss_obj, alpha = 0.5, B = 100)
+ss_obj <- sanssouci::SansSouci(Y = X, group = group)
+ss_obj_fit <- sanssouci::fit(ss_obj, alpha = 0.5, B = 100)
 
 export2dapartoolshed(ss_obj_fit, 1, 1)
 

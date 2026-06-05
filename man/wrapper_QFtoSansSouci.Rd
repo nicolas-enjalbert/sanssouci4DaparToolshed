@@ -26,7 +26,11 @@ numdata <- data.frame(
   S4 = c(9, 8, 9, 8, 3, 6, 4, 1, 4, 5),
   names = paste0("Prot", seq_len(10))
 )
-obj <- QFeatures::readQFeatures(numdata, quantCols = seq_len(4), fnames = "names", name = "datatest")
+obj <- QFeatures::readQFeatures(numdata,
+  quantCols = seq_len(4),
+  fnames = "names",
+  name = "datatest"
+)
 
 coldata <- data.frame(
   quantCols = c("S1", "S2", "S3", "S4"),

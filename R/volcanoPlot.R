@@ -16,11 +16,16 @@
 #' @param conditions A `character(2)` containing the names of both conditions.
 #' @param pal A `character(2)` containing the colors used for differential and
 #' non differential proteins.
+#' @param interactive A `logical(1)` defining if the volcano plot should be
+#' interactive and use plotly (TRUE) or not and use ggplot2 (FALSE).
 #'
-#' @returns A `ggplot2` object providing a volcano plot.
+#' @returns If `interactive` is TRUE, a `plotly` object providing a volcano
+#' plot. Else, a `ggplot2` object providing a volcano plot.
 #'
 #' @import ggplot2
 #' @import sanssouci
+#' @importFrom plotly ggplotly
+#' @importFrom plotly layout
 #' @importFrom stats p.adjust
 #'
 #' @author Manon Gaudin, Nicolas Enjalbert Courrech
@@ -32,36 +37,37 @@
 #' p <- 32
 #' X <- matrix(rnorm(n * p), ncol = n)
 #' group <- rep(c(1, 0), length.out = n)
-#' ss_obj <- SansSouci(Y = X, group = group)
-#' ss_obj_fit <- fit(ss_obj, alpha = 0.5, B = 100)
+#' ss_obj <- sanssouci::SansSouci(Y = X, group = group)
+#' ss_obj_fit <- sanssouci::fit(ss_obj, alpha = 0.5, B = 100)
 #'
-#' VolcanoPlot_ggplot(
+#' VolcanoPlot_ss4DT(
 #'   sanssouci_object = ss_obj_fit,
 #'   th_pval = 0.5,
 #'   th_logfc = 0.05
 #' )
 #'
-VolcanoPlot_ggplot <- function(sanssouci_object,
+VolcanoPlot_ss4DT <- function(sanssouci_object,
                                th_pval = 1,
                                th_qval = 1,
                                th_logfc = 0,
                                conditions = NULL,
-                               pal = NULL) {
+                               pal = NULL,
+                               interactive = FALSE) {
   if (missing(sanssouci_object)) {
     stop("'sanssouci_object' is required.")
   }
   if (!inherits(sanssouci_object, "SansSouci")) {
     stop("'sanssouci_object' must be an object of class SansSouci.")
   }
-  if (is.null(pValues(sanssouci_object))) {
+  if (is.null(sanssouci::pValues(sanssouci_object))) {
     stop("'sanssouci_object' has no p-values associated.
          ('pValues(sanssouci_object)' returns NULL)")
   }
-  if (is.null(foldChanges(sanssouci_object))) {
+  if (is.null(sanssouci::foldChanges(sanssouci_object))) {
     stop("'sanssouci_object' has no fold-changes associated.
          ('foldChanges(sanssouci_object)' returns NULL)")
   }
-  if (length(pValues(sanssouci_object)) != length(foldChanges(sanssouci_object))) {
+  if (length(sanssouci::pValues(sanssouci_object)) != length(sanssouci::foldChanges(sanssouci_object))) {
     stop("p-values and fold-changes associated to 'sanssouci_object'
          must be of equal length.
     ('pValues(sanssouci_object)' and 'foldChanges(sanssouci_object)'
@@ -93,6 +99,12 @@ VolcanoPlot_ggplot <- function(sanssouci_object,
   }
   if (th_logfc < 0) {
     stop("'th_logfc' must be positive.")
+  }
+  if (!is.logical(interactive)) {
+    stop("'interactive' must be logical.")
+  }
+  if (length(interactive) != 1) {
+    stop("'interactive' must be of length 1.")
   }
 
   if ((th_pval < 1) && (th_qval < 1)) {
@@ -130,7 +142,7 @@ VolcanoPlot_ggplot <- function(sanssouci_object,
     pval_thr <- min(logpval[pval_sel]) ## threshold on the log(p-value) scale
   }
 
-  ## gene selections
+  ## protein selections
   sel1 <- which(logpval >= pval_thr & logFC >= th_logfc)
   sel2 <- which(logpval >= pval_thr & logFC <= -th_logfc)
   sel12 <- sort(union(sel1, sel2))
@@ -150,12 +162,17 @@ VolcanoPlot_ggplot <- function(sanssouci_object,
   # FDP2 <- round(FP2 / max(n2, 1), 2)
 
   n12 <- length(sel12)
-  FP12 <- maxFP(pval_post_hoc[sel12], thr = thr_post_hoc)
+  FP12 <- sanssouci::maxFP(pval_post_hoc[sel12], thr = thr_post_hoc)
   TP12 <- n12 - FP12
   FDP12 <- round(FP12 / max(n12, 1), 2)
 
 
-  df <- data.frame(pval = logpval, logFC = logFC)
+  names_prot <- rownames(sanssouci_object$input$Y)
+  if (is.null(names_prot)) {
+    names_prot <- seq_along(logFC)
+  }
+
+  df <- data.frame(pval = logpval, logFC = logFC, protein_name = names_prot)
 
   # Significant / non-significant groups
   df$isDiff <- ifelse(df$pval >= pval_thr & abs(df$logFC) >= th_logfc,
@@ -175,7 +192,7 @@ VolcanoPlot_ggplot <- function(sanssouci_object,
     )
   }
 
-  p <- ggplot2::ggplot(
+  p <- suppressWarnings(ggplot2::ggplot(
     df,
     ggplot2::aes(x = logFC, y = pval, color = isDiff)
   ) +
@@ -199,7 +216,15 @@ VolcanoPlot_ggplot <- function(sanssouci_object,
       linetype = "solid",
       color = "black"
     ) +
-    ggplot2::geom_point(alpha = 0.8, size = 2) +
+    ggplot2::geom_point(
+      ggplot2::aes(text = paste0(
+        "Protein: ", protein_name, "<br>",
+        "logFC: ", logFC, "<br>",
+        "-log10(pval): ", pval
+      )),
+      alpha = 0.8,
+      size = 2
+    ) +
     ggplot2::scale_color_manual(values = c(In = pal$In, Out = pal$Out)) +
     ggplot2::labs(
       title = title,
@@ -208,12 +233,20 @@ VolcanoPlot_ggplot <- function(sanssouci_object,
     ) +
     ggplot2::theme_minimal() +
     ggplot2::theme(
-      plot.title = ggplot2::element_text(
-        hjust = 0.5,
-        size = 16
-      ),
+      plot.title = ggplot2::element_text(hjust = 0.5, size = 16),
       legend.position = "none"
-    )
+    ))
+
+  if (interactive) {
+    p <- plotly::ggplotly(p, tooltip = "text") |>
+      plotly::layout(
+        title = list(
+          text = title,
+          font = list(size = 18)
+        ),
+        margin = list(t = 60, b = 70)
+      )
+  }
 
   return(p)
 }
