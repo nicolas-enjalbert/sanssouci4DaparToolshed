@@ -102,6 +102,9 @@ devtools::load_all()
 # Réaliser le contrôle de conformité
 devtools::check()
 
+# 3.d. check de bioconductor
+BiocCheck::BiocCheck()
+
 ## Regarder la couverture de code
 coverage <- covr::package_coverage(path = ".",
                                    type = c("tests"),

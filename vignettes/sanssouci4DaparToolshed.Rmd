@@ -417,7 +417,7 @@ Foldchange_thlogFC <- 0.04
 
 VolcanoPlot_ss4DT(sanssouci_object = sanssouci_object_cal_limma,  
                    th_pval = pval_threshold, 
-                   th_logfc = Foldchange_thlogFC)
+                   th_logfc = Foldchange_thlogFC, interactive = FALSE)
 ```
 
 La filtration permets de sélectionner 39 protéines. Parmis ces protéines, la garanties statistiques à 50% permet de dire qu'il y a au moins 35 protéines qui sont réellement différentiellement exprimées. Cela revient à dire que la proportion de faux positifs n'excède pas 10%.
