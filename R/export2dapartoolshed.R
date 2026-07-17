@@ -8,8 +8,8 @@
 #'
 #' @param sanssouci_obj An object of class `SansSouci` which must be calibrated
 #' (see fit function in sanssouci package).
-#' @param pval_threshold A `numeric(1)`, threshold on pvalues.
-#' @param Foldchange_thlogFC A `numeric(1)`, threshold on log Fold Change.
+#' @param pval_thr A `numeric(1)`, threshold on pvalues.
+#' @param logfc_thr A `numeric(1)`, threshold on log Fold Change.
 #' @param qfeature_obj An object of class `QFeature`.
 #'
 #' @returns If qfeature_obj is NULL, returns a `data.frame` containing at least
@@ -49,8 +49,8 @@
 #'
 #' export2dapartoolshed(ss_obj_fit, 1, 1)
 #'
-export2dapartoolshed <- function(sanssouci_obj, pval_threshold,
-                                 Foldchange_thlogFC, qfeature_obj = NULL) {
+export2dapartoolshed <- function(sanssouci_obj, pval_thr,
+                                 logfc_thr, qfeature_obj = NULL) {
   if (missing(sanssouci_obj)) {
     stop("'sanssouci_obj' is required.")
   }
@@ -58,29 +58,29 @@ export2dapartoolshed <- function(sanssouci_obj, pval_threshold,
     stop("'sanssouci_obj' must be a 'SansSouci' class object.")
   }
 
-  if (missing(pval_threshold)) {
-    stop("'pval_threshold' is required.")
+  if (missing(pval_thr)) {
+    stop("'pval_thr' is required.")
   }
-  if (!is.numeric(pval_threshold)) {
-    stop("'pval_threshold' must be numeric.")
+  if (!is.numeric(pval_thr)) {
+    stop("'pval_thr' must be numeric.")
   }
-  if (length(pval_threshold) != 1) {
-    stop("'pval_threshold' must be of length 1.")
+  if (length(pval_thr) != 1) {
+    stop("'pval_thr' must be of length 1.")
   }
-  if ((pval_threshold < 0) || (pval_threshold > 1)) {
-    stop("'pval_threshold' must be between 0 and 1.")
+  if ((pval_thr < 0) || (pval_thr > 1)) {
+    stop("'pval_thr' must be between 0 and 1.")
   }
-  if (missing(Foldchange_thlogFC)) {
-    stop("'Foldchange_thlogFC' is required.")
+  if (missing(logfc_thr)) {
+    stop("'logfc_thr' is required.")
   }
-  if (!is.numeric(Foldchange_thlogFC)) {
-    stop("'Foldchange_thlogFC' must be numeric.")
+  if (!is.numeric(logfc_thr)) {
+    stop("'logfc_thr' must be numeric.")
   }
-  if (length(Foldchange_thlogFC) != 1) {
-    stop("'Foldchange_thlogFC' must be of length 1.")
+  if (length(logfc_thr) != 1) {
+    stop("'logfc_thr' must be of length 1.")
   }
-  if (Foldchange_thlogFC < 0) {
-    stop("'Foldchange_thlogFC' must be positive.")
+  if (logfc_thr < 0) {
+    stop("'logfc_thr' must be positive.")
   }
 
   if (!is.null(qfeature_obj)) {
@@ -114,7 +114,7 @@ export2dapartoolshed <- function(sanssouci_obj, pval_threshold,
   logFC <- sanssouci::foldChanges(sanssouci_obj)
 
 
-  sel_prot <- (pval < pval_threshold) & (abs(logFC) > Foldchange_thlogFC)
+  sel_prot <- (pval < pval_thr) & (abs(logFC) > logfc_thr)
 
   names_prot <- rownames(sanssouci_obj$input$Y)
   if (is.null(names_prot)) {
@@ -135,8 +135,8 @@ export2dapartoolshed <- function(sanssouci_obj, pval_threshold,
   name_col_sel <- paste("sel", ncol(df_sel) - 2, sep = "_")
   df_sel[[name_col_sel]] <- as.vector(sel_prot * 1)
   attributes(df_sel[[name_col_sel]]) <- list(
-    thr_pval = pval_threshold,
-    thr_logFC = Foldchange_thlogFC,
+    pval_thr = pval_thr,
+    logfc_thr = logfc_thr,
     n_sel = sum(sel_prot),
     FDP = pred_sel[["FDP"]],
     TP = pred_sel[["TP"]]
@@ -149,4 +149,51 @@ export2dapartoolshed <- function(sanssouci_obj, pval_threshold,
 
     return(qfeature_obj)
   }
+}
+
+
+
+
+#' Get info of post hoc selection
+#'
+#' @param object QFeatures object containing post hoc selection
+#' @param selection_name character, name of the selection
+#'
+#' @importFrom S4Vectors metadata metadata<-
+#'
+#' @returns a list containing:
+#' * pval_thr: the threshold on pvalues used for the selection,
+#' * logfc_thr: the threshold on log Foldchange used for the selection,
+#' * n_sel: the number of selected proteins,
+#' * FDP: the post hoc bound on the FDP,
+#' * TP: the post hoc bound on the TP
+#'
+#' @author Nicolas Enjalbert-Courrech and Pierre Neuvial
+#'
+#' @export
+#'
+#' @examples
+#' "TODO"
+getInfo_postHocSelection <- function(object, selection_name){
+
+  if (missing(object)) {
+    stop("'object' is required.")
+  }
+  if (missing(selection_name)) {
+    stop("'selection_name' is required.")
+  }
+  if(!inherits(object, "QFeatures")){
+    stop("object must be a QFeatures object.")
+  }
+
+  df <- metadata(object)
+
+  if(is.null(df$posthoc_selection)){
+    stop("object must contain 'posthoc_selection' data.frame.")
+  }
+  if(is.null(df$posthoc_selection[[selection_name]])){
+    stop(selection_name, "is not save in posthoc_selection data.frame in object.")
+  }
+
+  attributes(df$posthoc_selection[[selection_name]])
 }

@@ -7,11 +7,11 @@
 #'
 #' @param sanssouci_object A `SansSouci` object. Must be calibrated using the
 #' function `fit`.
-#' @param th_pval A `numeric(1)` which is the p-value threshold under which
+#' @param pval_thr A `numeric(1)` which is the p-value threshold under which
 #' proteins are selected.
-#' @param th_qval A `numeric(1)` which is the q-value threshold under which
+#' @param qval_thr A `numeric(1)` which is the q-value threshold under which
 #' proteins are selected.
-#' @param th_logfc A `numeric(1)` which is the absolute log(fold change)
+#' @param logfc_thr A `numeric(1)` which is the absolute log(fold change)
 #' threshold above which proteins are selected.
 #' @param conditions A `character(2)` containing the names of both conditions.
 #' @param pal A `character(2)` containing the colors used for differential and
@@ -42,17 +42,17 @@
 #'
 #' VolcanoPlot_ss4DT(
 #'   sanssouci_object = ss_obj_fit,
-#'   th_pval = 0.5,
-#'   th_logfc = 0.05
+#'   pval_thr = 0.5,
+#'   logfc_thr = 0.05
 #' )
 #'
 VolcanoPlot_ss4DT <- function(sanssouci_object,
-                               th_pval = 1,
-                               th_qval = 1,
-                               th_logfc = 0,
-                               conditions = NULL,
-                               pal = NULL,
-                               interactive = FALSE) {
+                              pval_thr = 1,
+                              qval_thr = 1,
+                              logfc_thr = 0,
+                              conditions = NULL,
+                              pal = NULL,
+                              interactive = FALSE) {
   if (missing(sanssouci_object)) {
     stop("'sanssouci_object' is required.")
   }
@@ -73,32 +73,32 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
     ('pValues(sanssouci_object)' and 'foldChanges(sanssouci_object)'
          are not of equal length)")
   }
-  if (!is.numeric(th_pval)) {
-    stop("'th_pval' must be numeric.")
+  if (!is.numeric(pval_thr)) {
+    stop("'pval_thr' must be numeric.")
   }
-  if (length(th_pval) != 1) {
-    stop("'th_pval' must be of length 1.")
+  if (length(pval_thr) != 1) {
+    stop("'pval_thr' must be of length 1.")
   }
-  if ((th_pval < 0) || (th_pval > 1)) {
-    stop("'th_pval' must be between 0 and 1.")
+  if ((pval_thr < 0) || (pval_thr > 1)) {
+    stop("'pval_thr' must be between 0 and 1.")
   }
-  if (!is.numeric(th_qval)) {
-    stop("'th_qval' must be numeric.")
+  if (!is.numeric(qval_thr)) {
+    stop("'qval_thr' must be numeric.")
   }
-  if (length(th_qval) != 1) {
-    stop("'th_qval' must be of length 1.")
+  if (length(qval_thr) != 1) {
+    stop("'qval_thr' must be of length 1.")
   }
-  if ((th_qval < 0) || (th_qval > 1)) {
-    stop("'th_qval' must be between 0 and 1.")
+  if ((qval_thr < 0) || (qval_thr > 1)) {
+    stop("'qval_thr' must be between 0 and 1.")
   }
-  if (!is.numeric(th_logfc)) {
-    stop("'th_logfc' must be numeric.")
+  if (!is.numeric(logfc_thr)) {
+    stop("'logfc_thr' must be numeric.")
   }
-  if (length(th_logfc) != 1) {
-    stop("'th_logfc' must be of length 1.")
+  if (length(logfc_thr) != 1) {
+    stop("'logfc_thr' must be of length 1.")
   }
-  if (th_logfc < 0) {
-    stop("'th_logfc' must be positive.")
+  if (logfc_thr < 0) {
+    stop("'logfc_thr' must be positive.")
   }
   if (!is.logical(interactive)) {
     stop("'interactive' must be logical.")
@@ -107,7 +107,7 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
     stop("'interactive' must be of length 1.")
   }
 
-  if ((th_pval < 1) && (th_qval < 1)) {
+  if ((pval_thr < 1) && (qval_thr < 1)) {
     warning("Filtering both on p-values and BH-adjusted p-values")
   }
 
@@ -135,16 +135,16 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
   logpval <- -log10(pval)
 
   adjp <- p.adjust(pval, method = "BH") ## adjusted p-values
-  pval_sel <- which((adjp <= th_qval) & ## selected by q-value
-    (pval <= th_pval)) ##          or p-value
-  pval_thr <- Inf
+  pval_sel <- which((adjp <= qval_thr) & ## selected by q-value
+                      (pval <= pval_thr)) ##          or p-value
+  log_pval_thr <- Inf
   if (length(pval_sel) > 0) {
-    pval_thr <- min(logpval[pval_sel]) ## threshold on the log(p-value) scale
+    log_pval_thr <- min(logpval[pval_sel]) ## threshold on the log(p-value) scale
   }
 
   ## protein selections
-  sel1 <- which(logpval >= pval_thr & logFC >= th_logfc)
-  sel2 <- which(logpval >= pval_thr & logFC <= -th_logfc)
+  sel1 <- which(logpval >= log_pval_thr & logFC >= logfc_thr)
+  sel2 <- which(logpval >= log_pval_thr & logFC <= -logfc_thr)
   sel12 <- sort(union(sel1, sel2))
 
   ## post hoc bounds in selections
@@ -175,9 +175,9 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
   df <- data.frame(pval = logpval, logFC = logFC, protein_name = names_prot)
 
   # Significant / non-significant groups
-  df$isDiff <- ifelse(df$pval >= pval_thr & abs(df$logFC) >= th_logfc,
-    "In",
-    "Out"
+  df$isDiff <- ifelse(df$pval >= log_pval_thr & abs(df$logFC) >= logfc_thr,
+                      "In",
+                      "Out"
   )
 
   if (title != "") {
@@ -202,7 +202,7 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
       color = "grey"
     ) +
     ggplot2::geom_vline(
-      xintercept = c(-th_logfc, th_logfc),
+      xintercept = c(-logfc_thr, logfc_thr),
       linetype = "dashed",
       color = "grey"
     ) +
