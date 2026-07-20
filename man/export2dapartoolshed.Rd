@@ -4,20 +4,15 @@
 \alias{export2dapartoolshed}
 \title{Extract selection and post hoc bound to QFeature object}
 \usage{
-export2dapartoolshed(
-  sanssouci_obj,
-  pval_threshold,
-  Foldchange_thlogFC,
-  qfeature_obj = NULL
-)
+export2dapartoolshed(sanssouci_obj, pval_thr, logfc_thr, qfeature_obj = NULL)
 }
 \arguments{
 \item{sanssouci_obj}{An object of class \code{SansSouci} which must be calibrated
 (see fit function in sanssouci package).}
 
-\item{pval_threshold}{A \code{numeric(1)}, threshold on pvalues.}
+\item{pval_thr}{A \code{numeric(1)}, threshold on pvalues.}
 
-\item{Foldchange_thlogFC}{A \code{numeric(1)}, threshold on log Fold Change.}
+\item{logfc_thr}{A \code{numeric(1)}, threshold on log Fold Change.}
 
 \item{qfeature_obj}{An object of class \code{QFeature}.}
 }

@@ -6,9 +6,9 @@
 \usage{
 VolcanoPlot_ss4DT(
   sanssouci_object,
-  th_pval = 1,
-  th_qval = 1,
-  th_logfc = 0,
+  pval_thr = 1,
+  qval_thr = 1,
+  logfc_thr = 0,
   conditions = NULL,
   pal = NULL,
   interactive = FALSE
@@ -18,13 +18,13 @@ VolcanoPlot_ss4DT(
 \item{sanssouci_object}{A \code{SansSouci} object. Must be calibrated using the
 function \code{fit}.}
 
-\item{th_pval}{A \code{numeric(1)} which is the p-value threshold under which
+\item{pval_thr}{A \code{numeric(1)} which is the p-value threshold under which
 proteins are selected.}
 
-\item{th_qval}{A \code{numeric(1)} which is the q-value threshold under which
+\item{qval_thr}{A \code{numeric(1)} which is the q-value threshold under which
 proteins are selected.}
 
-\item{th_logfc}{A \code{numeric(1)} which is the absolute log(fold change)
+\item{logfc_thr}{A \code{numeric(1)} which is the absolute log(fold change)
 threshold above which proteins are selected.}
 
 \item{conditions}{A \code{character(2)} containing the names of both conditions.}
@@ -54,8 +54,8 @@ ss_obj_fit <- sanssouci::fit(ss_obj, alpha = 0.5, B = 100)
 
 VolcanoPlot_ss4DT(
   sanssouci_object = ss_obj_fit,
-  th_pval = 0.5,
-  th_logfc = 0.05
+  pval_thr = 0.5,
+  logfc_thr = 0.05
 )
 
 }

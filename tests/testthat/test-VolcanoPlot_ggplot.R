@@ -8,13 +8,13 @@ test_that("Unit test for VolcanoPlot_ss4DT", {
 
   res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = 0.05
+    pval_thr = 0.5,
+    logfc_thr = 0.05
   )
   resplotly <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = 0.05,
+    pval_thr = 0.5,
+    logfc_thr = 0.05,
     interactive = TRUE
   )
 
@@ -27,108 +27,108 @@ test_that("Unit test for VolcanoPlot_ss4DT", {
   ss_obj_fit_nopval$output$p.value <- NULL
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit_nopval,
-    th_pval = 0.5,
-    th_logfc = 0.05
+    pval_thr = 0.5,
+    logfc_thr = 0.05
   ))
 
   ss_obj_fit_noFC <- ss_obj_fit
   ss_obj_fit_noFC$output$estimate <- NULL
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit_noFC,
-    th_pval = 0.5,
-    th_logfc = 0.05
+    pval_thr = 0.5,
+    logfc_thr = 0.05
   ))
 
   ss_obj_fit_noteq <- ss_obj_fit
   ss_obj_fit_noteq$output$estimate <- ss_obj_fit_noteq$output$estimate[-1]
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit_noteq,
-    th_pval = 0.5,
-    th_logfc = 0.05
+    pval_thr = 0.5,
+    logfc_thr = 0.05
   ))
 
   expect_error(res <- VolcanoPlot_ss4DT(
-    th_pval = 0.5,
-    th_logfc = 0.05
+    pval_thr = 0.5,
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = matrix(2),
-    th_pval = 0.5,
-    th_logfc = 0.05
+    pval_thr = 0.5,
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = "0.5",
-    th_logfc = 0.05
+    pval_thr = "0.5",
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = c(0.5, 1),
-    th_logfc = 0.05
+    pval_thr = c(0.5, 1),
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 1.5,
-    th_logfc = 0.05
+    pval_thr = 1.5,
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = -0.5,
-    th_logfc = 0.05
-  ))
-
-  expect_error(res <- VolcanoPlot_ss4DT(
-    sanssouci_object = ss_obj_fit,
-    th_qval = "0.5",
-    th_logfc = 0.05
-  ))
-  expect_error(res <- VolcanoPlot_ss4DT(
-    sanssouci_object = ss_obj_fit,
-    th_qval = c(0.5, 1),
-    th_logfc = 0.05
-  ))
-  expect_error(res <- VolcanoPlot_ss4DT(
-    sanssouci_object = ss_obj_fit,
-    th_qval = 1.5,
-    th_logfc = 0.05
-  ))
-  expect_error(res <- VolcanoPlot_ss4DT(
-    sanssouci_object = ss_obj_fit,
-    th_qval = -0.5,
-    th_logfc = 0.05
+    pval_thr = -0.5,
+    logfc_thr = 0.05
   ))
 
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = "0.05"
+    qval_thr = "0.5",
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = c(0.05, 1)
+    qval_thr = c(0.5, 1),
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = -0.05
+    qval_thr = 1.5,
+    logfc_thr = 0.05
+  ))
+  expect_error(res <- VolcanoPlot_ss4DT(
+    sanssouci_object = ss_obj_fit,
+    qval_thr = -0.5,
+    logfc_thr = 0.05
+  ))
+
+  expect_error(res <- VolcanoPlot_ss4DT(
+    sanssouci_object = ss_obj_fit,
+    pval_thr = 0.5,
+    logfc_thr = "0.05"
+  ))
+  expect_error(res <- VolcanoPlot_ss4DT(
+    sanssouci_object = ss_obj_fit,
+    pval_thr = 0.5,
+    logfc_thr = c(0.05, 1)
+  ))
+  expect_error(res <- VolcanoPlot_ss4DT(
+    sanssouci_object = ss_obj_fit,
+    pval_thr = 0.5,
+    logfc_thr = -0.05
   ))
   expect_warning(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_qval = 0.5,
-    th_logfc = 0.05
+    pval_thr = 0.5,
+    qval_thr = 0.5,
+    logfc_thr = 0.05
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = 0.05,
+    pval_thr = 0.5,
+    logfc_thr = 0.05,
     interactive = "test"
   ))
   expect_error(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = 0.05,
+    pval_thr = 0.5,
+    logfc_thr = 0.05,
     interactive = c(TRUE, TRUE)
   ))
 })
@@ -148,8 +148,8 @@ test_that("Fonctional test for VolcanoPlot_ss4DT", {
 
   res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = 0.05,
+    pval_thr = 0.5,
+    logfc_thr = 0.05,
     condition = c("group1", "group0"),
     pal = c("red", "blue")
   )
@@ -187,8 +187,8 @@ test_that("Fonctional test for VolcanoPlot_ss4DT", {
   ####### error in condition
   expect_warning(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = 0.05,
+    pval_thr = 0.5,
+    logfc_thr = 0.05,
     conditions = c(
       "group1", "group0",
       "fake_group"
@@ -228,8 +228,8 @@ test_that("Fonctional test for VolcanoPlot_ss4DT", {
   ####### error in color palette
   expect_warning(res <- VolcanoPlot_ss4DT(
     sanssouci_object = ss_obj_fit,
-    th_pval = 0.5,
-    th_logfc = 0.05,
+    pval_thr = 0.5,
+    logfc_thr = 0.05,
     conditions = c("group1", "group0"),
     pal = c("red", "blue", "grey")
   ))

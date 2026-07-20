@@ -413,11 +413,11 @@ Il est possible d'avoir une garantie post hoc sur n'importe quelle sélection fa
 
 ```{r}
 pval_threshold <- 0.01
-Foldchange_thlogFC <- 0.04
+logfc_threshold <- 0.04
 
 VolcanoPlot_ss4DT(sanssouci_object = sanssouci_object_cal_limma,  
-                   th_pval = pval_threshold, 
-                   th_logfc = Foldchange_thlogFC, interactive = FALSE)
+                   pval_thr = pval_threshold, 
+                   logfc_thr = logfc_threshold, interactive = FALSE)
 ```
 
 La filtration permets de sélectionner 39 protéines. Parmis ces protéines, la garanties statistiques à 50% permet de dire qu'il y a au moins 35 protéines qui sont réellement différentiellement exprimées. Cela revient à dire que la proportion de faux positifs n'excède pas 10%.
@@ -431,11 +431,17 @@ Proposition d'extraction et sorti : tableau data.frame qui contient toutes les p
 
 ```{r}
 obj_selectcond <- export2dapartoolshed(sanssouci_obj = sanssouci_object_cal_limma, 
-                            pval_threshold = pval_threshold, 
-                            Foldchange_thlogFC = Foldchange_thlogFC, 
+                            pval_thr = pval_threshold, 
+                            logfc_thr = logfc_threshold, 
                             qfeature_obj = obj_selectcond)
 
 head(metadata(obj_selectcond)$posthoc_selection)
+```
+
+Pour obtenir les bornes post hoc 
+
+```{r}
+getPostHocBound(obj_selectcond, "sel_1")
 ```
 
 
