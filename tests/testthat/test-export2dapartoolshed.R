@@ -19,11 +19,12 @@ coldata <- data.frame(
 rownames(coldata) <- coldata$quantCols
 SummarizedExperiment::colData(qfeature_obj) <- coldata
 
-rownames(numdata) <- numdata$names
-numdata <- numdata[, colnames(numdata) != "names"]
-sanssouci_init <- SansSouci(Y = as.matrix(numdata), groups = (coldata$Condition == "C1") * 1)
+# rownames(numdata) <- numdata$names
+# numdata <- numdata[, colnames(numdata) != "names"]
+sanssouci_init <- wrapper_QFtoSansSouci(qfeature_obj)
+# sanssouci_init <- SansSouci(Y = as.matrix(numdata), groups = (coldata$Condition == "C1") * 1)
 
-B <- 10
+B <- 0
 sanssouci_obj <- fit(sanssouci_init, B = B, alpha = 0.5)
 
 
@@ -56,7 +57,7 @@ test_that("Unit/fctal test of export2dapartoolshed : good", {
   #                                              "n_sel",
   #                                       "FDP", "TP")) # tested with consistenc
   expect_equal(dim(res), c(nb_prot, 4))
-  expect_equal(res$name_prot, rownames(numdata))
+  expect_equal(res$name_prot, numdata$names)
 
   ## Consistency with sanssouci
   pval <- pValues(sanssouci_obj)
@@ -103,7 +104,7 @@ test_that("Unit/fctal test of export2dapartoolshed : good", {
   #                                              "n_sel",
   #                                       "FDP", "TP")) # tested with consistenc
   expect_equal(dim(res), c(nb_prot, 4))
-  expect_equal(res$name_prot, rownames(numdata))
+  expect_equal(res$name_prot, numdata$names)
 
   ## Consistency with sanssouci
   pval <- pValues(sanssouci_obj)
@@ -149,7 +150,7 @@ test_that("Unit/fctal test of export2dapartoolshed : good", {
   #                                              "n_sel",
   #                                       "FDP", "TP")) # tested with consistenc
   expect_equal(dim(res), c(nb_prot, 5))
-  expect_equal(res$name_prot, rownames(numdata))
+  expect_equal(res$name_prot, numdata$names)
 
   ## Consistency with sanssouci : sel_1 is not modified
   pval <- pValues(sanssouci_obj)
@@ -278,12 +279,12 @@ test_that("Unit test of export2dapartoolshed : errors", {
       qfeature_obj = res1,
       logfc_thr = 1
     ),
-    regexp = "Number of permutation used must be  10 as previously saved."
+    regexp = "Number of permutation used must be  0 as previously saved."
   )
   # try to use another calibration parameters : rowTestFun
   sanssouci_obj_F <- fit(sanssouci_init,
     alpha = 0.5,
-    rowTestFUN = rowWilcoxonTests, B = 10
+    rowTestFUN = rowWilcoxonTests, B = 0
   )
   expect_error(
     export2dapartoolshed(
@@ -294,4 +295,33 @@ test_that("Unit test of export2dapartoolshed : errors", {
     ),
     regexp = "Test function used must be  rowWelchTests as previously saved."
   )
+})
+
+test_that("Unit test of getPostHocBound", {
+  pval_thr <- 0.5
+  logFC_thr <- 0.001
+  qf_obj_PH <- export2dapartoolshed(sanssouci_obj,
+                              pval_thr = pval_thr,
+                              logfc_thr = logFC_thr,
+                              qfeature_obj = qfeature_obj
+  )
+
+  res <- getPostHocBound(qf_obj_PH, selection_name = "sel_1")
+  expect_is(res, "list")
+  expect_equal(names(res), c("pval_thr", "logfc_thr", "n_sel", "FDP", "TP"))
+  expect_equal(res$pval_thr, pval_thr)
+  expect_equal(res$logfc_thr, logFC_thr)
+  expect_equal(res$n_sel, 5)
+  expect_equal(res$FDP, 1)
+  expect_equal(res$TP, 0)
+
+  ## error
+  expect_error({getPostHocBound(selection_name = "sel_1")},
+              "'object' is required")
+  expect_error({getPostHocBound(object = qf_obj_PH)},
+               "'selection_name' is required")
+  expect_error({getPostHocBound(object = qfeature_obj, selection = "sel_1")},
+               "object must contain 'posthoc_selection' data.frame.")
+  expect_error({getPostHocBound(object = qf_obj_PH, selection = "wrongname")},
+               "wrongname is not save in posthoc_selection data.frame in object.")
 })

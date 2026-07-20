@@ -441,7 +441,7 @@ head(metadata(obj_selectcond)$posthoc_selection)
 Pour obtenir les bornes post hoc 
 
 ```{r}
-getInfo_postHocSelection(obj_selectcond, "sel_1")
+getPostHocBound(obj_selectcond, "sel_1")
 ```
 
 
