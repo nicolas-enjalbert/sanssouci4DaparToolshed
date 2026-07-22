@@ -318,6 +318,9 @@ test_that("Unit test of getPostHocBound", {
   ## error
   expect_error({getPostHocBound(selection_name = "sel_1")},
               "'object' is required")
+  expect_error({getPostHocBound(object = matrix(NA, nrow = 3, ncol = 4),
+                                selection = "sel_1")},
+               "object must be a QFeatures object.")
   expect_error({getPostHocBound(object = qf_obj_PH)},
                "'selection_name' is required")
   expect_error({getPostHocBound(object = qfeature_obj, selection = "sel_1")},
