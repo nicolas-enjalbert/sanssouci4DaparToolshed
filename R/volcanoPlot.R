@@ -197,7 +197,7 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
     ggplot2::aes(x = logFC, y = pval, color = isDiff)
   ) +
     ggplot2::geom_hline(
-      yintercept = pval_thr,
+      yintercept = -log10(pval_thr),
       linetype = "dashed",
       color = "grey"
     ) +
