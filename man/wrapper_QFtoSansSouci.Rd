@@ -40,7 +40,8 @@ coldata <- data.frame(
 rownames(coldata) <- coldata$quantCols
 SummarizedExperiment::colData(obj) <- coldata
 
-wrapper_QFtoSansSouci(obj)
+ss_obj <- wrapper_QFtoSansSouci(obj)
+ss_obj
 
 }
 \author{

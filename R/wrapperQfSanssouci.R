@@ -39,8 +39,9 @@
 #' rownames(coldata) <- coldata$quantCols
 #' SummarizedExperiment::colData(obj) <- coldata
 #'
-#' wrapper_QFtoSansSouci(obj)
-#'
+#' ss_obj <- wrapper_QFtoSansSouci(obj)
+#' ss_obj
+#' 
 wrapper_QFtoSansSouci <- function(obj, i = NULL) {
   if (missing(obj)) {
     stop("'obj' is required.")

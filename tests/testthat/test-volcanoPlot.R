@@ -139,7 +139,7 @@ test_that("Fonctional test for volcanoPlot", {
   p <- 32
   X <- matrix(rnorm(n * p), ncol = n)
   group <- rep(c(1, 0), length.out = n)
-  ss_obj <- SansSouci(Y = X, group = group)
+  ss_obj <- SansSouci(Y = X, groups = group)
   ss_obj <- as.SansSouci4DT(ss_obj)
   ss_obj_fit <- fit(ss_obj, alpha = 0.5, B = 100)
 
