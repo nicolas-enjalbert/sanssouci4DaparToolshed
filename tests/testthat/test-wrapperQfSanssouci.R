@@ -18,7 +18,8 @@ test_that("unit test of wrapper_QFtoSansSouci()", {
 
   res <- wrapper_QFtoSansSouci(obj)
 
-  expect_true(is(res, "SansSouci"))
+  expect_is(res, "SansSouci")
+  expect_is(res, "SansSouci4DT")
   expect_equal(length(res), 3)
   expect_true(all(res$input$Y == numdata[, -5]))
 

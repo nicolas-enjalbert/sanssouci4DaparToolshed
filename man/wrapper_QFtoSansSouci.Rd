@@ -13,7 +13,7 @@ wrapper_QFtoSansSouci(obj, i = NULL)
 will be converted. If NULL, the last assay will be selected by default.}
 }
 \value{
-An object of class \code{SansSouci}.
+An object of class \code{SansSouci4DT}.
 }
 \description{
 Convert an assay of an object of class \code{QFeatures} in a \code{Sanssouci} object.

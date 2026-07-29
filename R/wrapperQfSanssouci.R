@@ -7,7 +7,7 @@
 #' @param i An `integer(1)` index or a `character(1)` name of the assay which
 #' will be converted. If NULL, the last assay will be selected by default.
 #'
-#' @returns An object of class `SansSouci`.
+#' @returns An object of class `SansSouci4DT`.
 #'
 #' @importFrom SummarizedExperiment assay
 #' @importFrom DaparToolshed design_qf
@@ -74,6 +74,6 @@ wrapper_QFtoSansSouci <- function(obj, i = NULL) {
     Y = Y,
     groups = groups
   )
-  attributes(obj)$class <- c("SansSouciQFeatures", attributes(obj)$class)
-  return(obj)
+  SansSouciobj <- as.SansSouci4DT(SansSouciobj)
+  return(SansSouciobj)
 }
