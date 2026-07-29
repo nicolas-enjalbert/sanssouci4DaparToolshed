@@ -1,6 +1,6 @@
 Package: sanssouci4DaparToolshed
 Title: Using sanssouci in DaparToolshed proteomic pipeline
-Version: 0.99.01
+Version: 0.99.02
 Authors@R: c(
     person("Nicolas", "Enjalbert Courrech", , "nicolas.enjalbert-courrech@inrae.fr", role = c("aut", "cre")),
     person("Manon", "Gaudin", , "manon.gaudin@cea.fr", role = c("aut"))
