@@ -14,8 +14,8 @@
 #' @param logfc_thr A `numeric(1)` which is the absolute log(fold change)
 #' threshold above which proteins are selected.
 #' @param conditions A `character(2)` containing the names of both conditions.
-#' @param pal A `character(2)` containing the colors used for differential and
-#' non differential proteins.
+#' @param pal A `character(2)` containing the colors used for non-differential 
+#' and differential proteins.
 #' @param interactive A `logical(1)` defining if the volcano plot should be
 #' interactive and use plotly (TRUE) or not and use ggplot2 (FALSE).
 #'
@@ -121,121 +121,17 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
   }
 
   if (is.null(pal)) {
-    pal <- list(In = "orange", Out = "gray")
+    pal <- c(Out = "gray", In = "orange")
   } else if (length(pal) != 2) {
     warning("'pal' must be of length 2. Colors set to default.")
-    pal <- list(In = "orange", Out = "gray")
+    pal <- c(Out = "gray", In = "orange")
   } else {
-    pal <- list(In = pal[1], Out = pal[2])
+    pal <- c(Out = pal[1], In = pal[2])
   }
 
-  pval <- as.vector(sanssouci::pValues(sanssouci_object))
-  logFC <- as.vector(sanssouci::foldChanges(sanssouci_object))
-
-  logpval <- -log10(pval)
-
-  adjp <- p.adjust(pval, method = "BH") ## adjusted p-values
-  pval_sel <- which((adjp <= qval_thr) & ## selected by q-value
-                      (pval <= pval_thr)) ##          or p-value
-  log_pval_thr <- Inf
-  if (length(pval_sel) > 0) {
-    log_pval_thr <- min(logpval[pval_sel]) ## threshold on the log(p-value) scale
-  }
-
-  ## protein selections
-  sel1 <- which(logpval >= log_pval_thr & logFC >= logfc_thr)
-  sel2 <- which(logpval >= log_pval_thr & logFC <= -logfc_thr)
-  sel12 <- sort(union(sel1, sel2))
-
-  ## post hoc bounds in selections
-  pval_post_hoc <- sanssouci::pValues(sanssouci_object)
-  thr_post_hoc <- sanssouci::thresholds(sanssouci_object)
-
-  # n1 <- length(sel1)
-  # FP1 <- maxFP(pval_post_hoc[sel1], thr = thr_post_hoc)
-  # TP1 <- n1 - FP1
-  # FDP1 <- round(FP1 / max(n1, 1), 2)
-  #
-  # n2 <- length(sel2)
-  # FP2 <- maxFP(pval_post_hoc[sel2], thr = thr_post_hoc)
-  # TP2 <- n2 - FP2
-  # FDP2 <- round(FP2 / max(n2, 1), 2)
-
-  n12 <- length(sel12)
-  FP12 <- sanssouci::maxFP(pval_post_hoc[sel12], thr = thr_post_hoc)
-  TP12 <- n12 - FP12
-  FDP12 <- round(FP12 / max(n12, 1), 2)
-
-
-  names_prot <- rownames(sanssouci_object$input$Y)
-  if (is.null(names_prot)) {
-    names_prot <- seq_along(logFC)
-  }
-
-  df <- data.frame(pval = logpval, logFC = logFC, protein_name = names_prot)
-
-  # Significant / non-significant groups
-  df$isDiff <- ifelse(df$pval >= log_pval_thr & abs(df$logFC) >= logfc_thr,
-                      "In",
-                      "Out"
-  )
-
-  if (title != "") {
-    title <- paste0(
-      title, " - ", n12, " proteins selected \n",
-      "At least ", TP12, " true positives (FDP <= ", FDP12, ")"
-    )
-  } else {
-    title <- paste0(
-      n12, " proteins selected \n",
-      "At least ", TP12, " true positives (FDP <= ", FDP12, ")"
-    )
-  }
-
-  p <- suppressWarnings(ggplot2::ggplot(
-    df,
-    ggplot2::aes(x = logFC, y = pval, color = isDiff)
-  ) +
-    ggplot2::geom_hline(
-      yintercept = -log10(pval_thr),
-      linetype = "dashed",
-      color = "grey"
-    ) +
-    ggplot2::geom_vline(
-      xintercept = c(-logfc_thr, logfc_thr),
-      linetype = "dashed",
-      color = "grey"
-    ) +
-    ggplot2::geom_hline(
-      yintercept = 0,
-      linetype = "solid",
-      color = "black"
-    ) +
-    ggplot2::geom_vline(
-      xintercept = 0,
-      linetype = "solid",
-      color = "black"
-    ) +
-    ggplot2::geom_point(
-      ggplot2::aes(text = paste0(
-        "Protein: ", protein_name, "<br>",
-        "logFC: ", logFC, "<br>",
-        "-log10(pval): ", pval
-      )),
-      alpha = 0.8,
-      size = 2
-    ) +
-    ggplot2::scale_color_manual(values = c(In = pal$In, Out = pal$Out)) +
-    ggplot2::labs(
-      title = title,
-      x = "logFC",
-      y = "-log10(pValue)"
-    ) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(
-      plot.title = ggplot2::element_text(hjust = 0.5, size = 16),
-      legend.position = "none"
-    ))
+  p <- volcanoPlot(sanssouci_object, p = pval_thr, q = qval_thr, r = logfc_thr, 
+              pch = 20, cex = c(2, 2), col = pal, 
+              add_signed_selections = FALSE)
 
   if (interactive) {
     p <- plotly::ggplotly(p, tooltip = "text") |>

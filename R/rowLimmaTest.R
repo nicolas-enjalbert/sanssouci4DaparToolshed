@@ -75,7 +75,7 @@ limmaAnalyses <- function(Y, groups) {
   # Fit a linear model
   res_lm <- limma::lmFit(Y, design.matrix)
   # Define contrast : here onlye group1 vs group0
-  contr <- limma::makeContrasts(groups1 - groups0,
+  contr <- limma::makeContrasts("groups1 - groups0",
     levels = colnames(design.matrix)
   )
   # fit with contrast
