@@ -34,6 +34,7 @@
 #' @import sanssouci
 #' @import DaparToolshed
 #' @importFrom S4Vectors metadata metadata<-
+#' @importFrom stats predict
 #'
 #' @author Nicolas Enjalbert Courrech
 #'

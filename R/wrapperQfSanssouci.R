@@ -70,7 +70,7 @@ wrapper_QFtoSansSouci <- function(obj, i = NULL) {
 
   ## gerer le cas où + que 2 conditions ?
 
-  obj <- sanssouci::SansSouci(
+  SansSouciobj <- sanssouci::SansSouci(
     Y = Y,
     groups = groups
   )

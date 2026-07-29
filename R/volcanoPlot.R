@@ -5,7 +5,7 @@
 #' with `ggplot2` and indicates the number of selected proteins with the given
 #' thresholds, as well as the minimal number of true positives.
 #'
-#' @param sanssouci_object A `SansSouci` object. Must be calibrated using the
+#' @param x A `SansSouci` object. Must be calibrated using the
 #' function `fit`.
 #' @param pval_thr A `numeric(1)` which is the p-value threshold under which
 #' proteins are selected.
@@ -14,10 +14,11 @@
 #' @param logfc_thr A `numeric(1)` which is the absolute log(fold change)
 #' threshold above which proteins are selected.
 #' @param conditions A `character(2)` containing the names of both conditions.
-#' @param pal A `character(2)` containing the colors used for non-differential 
+#' @param pal A `character(2)` containing the colors used for non-differential
 #' and differential proteins.
 #' @param interactive A `logical(1)` defining if the volcano plot should be
 #' interactive and use plotly (TRUE) or not and use ggplot2 (FALSE).
+#' @param ... parameters to pass to sanssouci::volcanoPlot.numeric
 #'
 #' @returns If `interactive` is TRUE, a `plotly` object providing a volcano
 #' plot. Else, a `ggplot2` object providing a volcano plot.
@@ -30,32 +31,51 @@
 #'
 #' @author Manon Gaudin, Nicolas Enjalbert Courrech
 #'
-#' @export
+#' @exportS3Method sanssouci::volcanoPlot
 #'
 #' @examples
+#' library(sanssouci)
 #' n <- 20
 #' p <- 32
-#' X <- matrix(rnorm(n * p), ncol = n)
+#' X <- as.data.frame(matrix(rnorm(n * p), ncol = n))
+#' colnames(X) <- paste0("S", seq_len(n))
+#' X[,"names"] <- paste0("Prot", seq_len(p))
 #' group <- rep(c(1, 0), length.out = n)
-#' ss_obj <- sanssouci::SansSouci(Y = X, group = group)
-#' ss_obj_fit <- sanssouci::fit(ss_obj, alpha = 0.5, B = 100)
+#' obj <- QFeatures::readQFeatures(X,
+#'   quantCols = seq_len(n),
+#'   fnames = "names",
+#'   name = "datatest"
+#' )
 #'
-#' VolcanoPlot_ss4DT(
-#'   sanssouci_object = ss_obj_fit,
+#' coldata <- data.frame(
+#'   quantCols = paste0("S", seq_len(n)),
+#'   Condition = group,
+#'   Bio.Rep = as.character(seq_len(n))
+#' )
+#' rownames(coldata) <- coldata$quantCols
+#' SummarizedExperiment::colData(obj) <- coldata
+#'
+#' ss_obj <- wrapper_QFtoSansSouci(obj)
+#' ss_obj <- sanssouci::fit(ss_obj, alpha = 0.5, B = 100)
+#'
+#' volcanoPlot(
+#'   x = ss_obj,
 #'   pval_thr = 0.5,
 #'   logfc_thr = 0.05
 #' )
 #'
-VolcanoPlot_ss4DT <- function(sanssouci_object,
-                              pval_thr = 1,
-                              qval_thr = 1,
-                              logfc_thr = 0,
-                              conditions = NULL,
-                              pal = NULL,
-                              interactive = FALSE) {
-  if (missing(sanssouci_object)) {
-    stop("'sanssouci_object' is required.")
+volcanoPlot.SansSouci4DT <- function(x,
+                                     pval_thr = 1,
+                                     qval_thr = 1,
+                                     logfc_thr = 0,
+                                     conditions = NULL,
+                                     pal = NULL,
+                                     interactive = FALSE, ...) {
+
+  if (missing(x)) {
+    stop("'x' is required.")
   }
+  sanssouci_object <- x
   if (!inherits(sanssouci_object, "SansSouci")) {
     stop("'sanssouci_object' must be an object of class SansSouci.")
   }
@@ -121,25 +141,36 @@ VolcanoPlot_ss4DT <- function(sanssouci_object,
   }
 
   if (is.null(pal)) {
-    pal <- c(Out = "gray", In = "orange")
+    pal <- c(Out = "gray", In = "orange", "white")
   } else if (length(pal) != 2) {
     warning("'pal' must be of length 2. Colors set to default.")
-    pal <- c(Out = "gray", In = "orange")
+    pal <- c(Out = "gray", In = "orange", "white")
   } else {
-    pal <- c(Out = pal[1], In = pal[2])
+    pal <- c(Out = pal[1], In = pal[2], "white")
   }
 
-  p <- volcanoPlot(sanssouci_object, p = pval_thr, q = qval_thr, r = logfc_thr, 
-              pch = 20, cex = c(2, 2), col = pal, 
-              add_signed_selections = FALSE)
+  p <- volcanoPlot(x = as.vector(sanssouci::foldChanges(sanssouci_object)),
+                   p_value = as.vector(sanssouci::pValues(sanssouci_object)),
+                   thr = sanssouci::thresholds(sanssouci_object),
+                   p_value_bound = sanssouci::pValues(sanssouci_object),
+                   p = pval_thr,
+                   q = qval_thr,
+                   r = logfc_thr,
+                   pch = 20,
+                   cex = c(2, 2),
+                   col = pal,
+                   feature_label = "protein",
+                   add_signed_selections = FALSE)
 
   if (interactive) {
-    p <- plotly::ggplotly(p, tooltip = "text") |>
+    p <- plotly::ggplotly(p +
+                            labs(y = "p-value (-log10 scale)"),
+                          tooltip = "text") |>
       plotly::layout(
-        title = list(
-          text = title,
-          font = list(size = 18)
-        ),
+        # title = list(
+        #   text = title,
+        #   font = list(size = 18)
+        # ),
         margin = list(t = 60, b = 70)
       )
   }
