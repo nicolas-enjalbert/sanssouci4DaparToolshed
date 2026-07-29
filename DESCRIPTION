@@ -18,7 +18,7 @@ Imports:
     plotly,
     limma,
     S4Vectors,
-    sanssouci,
+    sanssouci (>= 0.16.3),
     SummarizedExperiment
 Suggests: 
     BiocStyle,
