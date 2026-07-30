@@ -74,13 +74,6 @@ export2dapartoolshed <- function(sanssouci_obj, pval_thr,
 #' @exportS3Method
 export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
                                  logfc_thr, qfeature_obj = NULL) {
-  if (missing(sanssouci_obj)) {
-    stop("'sanssouci_obj' is required.")
-  }
-  if (!inherits(sanssouci_obj, "SansSouci")) {
-    stop("'sanssouci_obj' must be a 'SansSouci' class object.")
-  }
-
   if (missing(pval_thr)) {
     stop("'pval_thr' is required.")
   }
