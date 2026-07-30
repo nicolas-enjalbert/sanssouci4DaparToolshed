@@ -6,6 +6,8 @@
 #' @param categ A vector of design. Should consist only of '0' and '1'.
 #' If not return an error.
 #' @param n A `numeric(1)`, expected length of categ.
+#' 
+#' @keywords internal
 #'
 #' @returns NULL if the design vector is valid, or an error if the design
 #' vector is invalid.

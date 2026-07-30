@@ -22,3 +22,4 @@ Check whether the design vector is valid.
 \author{
 Nicolas Enjalbert Courrech from package sanssouci
 }
+\keyword{internal}

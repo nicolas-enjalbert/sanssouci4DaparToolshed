@@ -2,7 +2,7 @@
 % Please edit documentation in R/export2dapartoolshed.R
 \name{getPostHocBound}
 \alias{getPostHocBound}
-\title{Get info of post hoc selection}
+\title{Get info of post hoc selection stored in QFeatures object}
 \usage{
 getPostHocBound(object, selection_name)
 }
@@ -22,7 +22,7 @@ a list containing:
 }
 }
 \description{
-Get info of post hoc selection
+Get info of post hoc selection stored in QFeatures object
 }
 \examples{
 numdata <- data.frame(

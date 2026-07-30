@@ -10,8 +10,8 @@ export2dapartoolshed(sanssouci_obj, pval_thr, logfc_thr, qfeature_obj = NULL)
 \method{export2dapartoolshed}{SansSouci4DT}(sanssouci_obj, pval_thr, logfc_thr, qfeature_obj = NULL)
 }
 \arguments{
-\item{sanssouci_obj}{An object of class \code{SansSouci} which must be calibrated
-(see fit function in sanssouci package).}
+\item{sanssouci_obj}{An object of class \code{SansSouci4DT} which must be calibrated
+(see sanssouci::fit function).}
 
 \item{pval_thr}{A \code{numeric(1)}, threshold on pvalues.}
 
@@ -46,7 +46,7 @@ If qfeature_obj is not NULL, returns a \code{QFeature} with the previously
 described data.frame stored in \code{metadata(qfeature_obj)$posthoc_selection}.
 }
 \description{
-Extract selection and post hoc bound form a \code{Sanssouci} object to either a
+Extract selection and post hoc bound form a \code{SansSouci4DT} object to either a
 \code{data.frame} a \code{QFeatures}.
 This function can be executed multiple times on a given \code{QFeatures} with
 different thresholds.
