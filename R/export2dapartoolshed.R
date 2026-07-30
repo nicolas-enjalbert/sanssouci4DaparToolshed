@@ -195,7 +195,7 @@ export2dapartoolshed <- function(sanssouci_obj, pval_thr,
 #' rownames(coldata) <- coldata$quantCols
 #' SummarizedExperiment::colData(obj) <- coldata
 #'
-#' ss_obj <- wrapper_QFtoSansSouci(obj)
+#' ss_obj <- SansSouci4DT(obj)
 #' ss_obj <- sanssouci::fit(ss_obj, alpha = 0.5, B = 0)
 #' obj <- export2dapartoolshed(ss_obj, 0.1, 0.5, obj)
 #' getPostHocBound(obj, "sel_1")

@@ -1,7 +1,7 @@
 #' @title Convert a QFeatures in Sanssouci object
 #'
 #' @description
-#' Convert an assay of an object of class `QFeatures` in a `Sanssouci` object.
+#' Convert an assay of an object of class `QFeatures` in a `SansSouci4DT` object.
 #'
 #' @param obj An object of class `QFeatures`.
 #' @param i An `integer(1)` index or a `character(1)` name of the assay which
@@ -39,10 +39,10 @@
 #' rownames(coldata) <- coldata$quantCols
 #' SummarizedExperiment::colData(obj) <- coldata
 #'
-#' ss_obj <- wrapper_QFtoSansSouci(obj)
+#' ss_obj <- SansSouci4DT(obj)
 #' ss_obj
-#' 
-wrapper_QFtoSansSouci <- function(obj, i = NULL) {
+#'
+SansSouci4DT <- function(obj, i = NULL) {
   if (missing(obj)) {
     stop("'obj' is required.")
   }

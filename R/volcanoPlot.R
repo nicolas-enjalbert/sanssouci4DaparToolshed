@@ -55,7 +55,7 @@
 #' rownames(coldata) <- coldata$quantCols
 #' SummarizedExperiment::colData(obj) <- coldata
 #'
-#' ss_obj <- wrapper_QFtoSansSouci(obj)
+#' ss_obj <- SansSouci4DT(obj)
 #' ss_obj <- sanssouci::fit(ss_obj, alpha = 0.5, B = 100)
 #'
 #' volcanoPlot(ss_obj, pval_thr = 0.5, logfc_thr = 0.05)

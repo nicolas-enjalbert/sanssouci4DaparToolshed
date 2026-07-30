@@ -21,7 +21,7 @@ SummarizedExperiment::colData(qfeature_obj) <- coldata
 
 # rownames(numdata) <- numdata$names
 # numdata <- numdata[, colnames(numdata) != "names"]
-sanssouci_init <- wrapper_QFtoSansSouci(qfeature_obj)
+sanssouci_init <- SansSouci4DT(qfeature_obj)
 # sanssouci_init <- SansSouci(Y = as.matrix(numdata), groups = (coldata$Condition == "C1") * 1)
 
 B <- 0
