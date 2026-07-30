@@ -1,7 +1,8 @@
-#' @title Convert a QFeatures in Sanssouci object
+#' @title Convert a QFeatures in Sanssouci4DT object
 #'
 #' @description
-#' Convert an assay of an object of class `QFeatures` in a `SansSouci4DT` object.
+#' Convert an assay of an object of class `QFeatures` in a `SansSouci4DT`
+#' object. A `SansSouci4DT` object inherits from the `SansSouci` object class.
 #'
 #' @param obj An object of class `QFeatures`.
 #' @param i An `integer(1)` index or a `character(1)` name of the assay which
@@ -41,7 +42,6 @@
 #'
 #' ss_obj <- SansSouci4DT(obj)
 #' ss_obj
-#'
 SansSouci4DT <- function(obj, i = NULL) {
   if (missing(obj)) {
     stop("'obj' is required.")
@@ -69,8 +69,7 @@ SansSouci4DT <- function(obj, i = NULL) {
   Y <- SummarizedExperiment::assay(obj[[i]])
   groups <- as.integer(as.factor(DaparToolshed::design_qf(obj)$Condition)) - 1
 
-  ## gerer le cas où + que 2 conditions ?
-
+  ## Only design for two conditions comparison.
   SansSouciobj <- sanssouci::SansSouci(
     Y = Y,
     groups = groups
