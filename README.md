@@ -1,8 +1,9 @@
 # sanssouci4DaparToolshed
 
 <!-- badges: start -->
-[![R-CMD-check](https://github.com/nicolas-enjalbert/sanssouci4DaparToolshed/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nicolas-enjalbert/sanssouci4DaparToolshed/actions)
+[![R-CMD-check](https://github.com/sanssouci-org/sanssouci4DaparToolshed/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nicolas-enjalbert/sanssouci4DaparToolshed/actions)
 [![coverage](https://github.com/sanssouci-org/sanssouci4DaparToolshed/actions/workflows/test_covr.yaml/badge.svg)](https://github.com/sanssouci-org/sanssouci4DaparToolshed/actions/workflows/test_covr.yaml)
+[![Coverage](https://img.shields.io/endpoint?url=https://sanssouci-org.github.io/sanssouci4DaparToolshed/coverage.json)
 <!-- badges: end -->
 
 ## Overview

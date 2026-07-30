@@ -1,0 +1,121 @@
+name: coverage-essaie
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+permissions:
+  contents: write
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup R
+        uses: r-lib/actions/setup-r@v2
+
+      - name: Install dependencies
+        uses: r-lib/actions/setup-r-dependencies@v2
+        with:
+          extra-packages: any::covr
+
+      - name: Compute coverage
+        shell: Rscript {0}
+        run: |
+
+          cov <- covr::package_coverage()
+
+          print(cov)
+
+          percent <- round(covr::percent_coverage(cov), 1)
+
+          cat("Coverage:", percent, "%\n")
+
+          writeLines(as.character(percent), "coverage.txt")
+
+      - name: Create badge json
+        run: |
+
+          COVERAGE=$(cat coverage.txt)
+
+          COVERAGE_INT=$(printf "%.0f" "$COVERAGE")
+
+          if [ "$COVERAGE_INT" -lt 70 ]; then
+            COLOR="red"
+          elif [ "$COVERAGE_INT" -lt 90 ]; then
+            COLOR="orange"
+          else
+            COLOR="green"
+          fi
+
+          mkdir badge
+
+          cat > badge/coverage.json <<EOF
+          {
+            "schemaVersion": 1,
+            "label": "coverage",
+            "message": "${COVERAGE}%",
+            "color": "${COLOR}"
+          }
+          EOF
+
+      - name: Publish badge
+        if: github.event_name == 'push'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+
+          git clone \
+            --depth 1 \
+            --branch badge \
+            https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git \
+            badge_repo \
+          || {
+
+            git clone \
+              --depth 1 \
+              https://x-access-token:${GITHUB_TOKEN}@github.com/${{ github.repository }}.git \
+              badge_repo
+
+            cd badge_repo
+
+            git checkout --orphan badge
+
+            git rm -rf .
+
+            cd ..
+          }
+
+          cp badge/coverage.json badge_repo/
+
+          cd badge_repo
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add coverage.json
+
+          if git diff --cached --quiet; then
+            echo "Coverage badge unchanged."
+          else
+            git commit -m "Update coverage badge"
+            git push origin badge
+          fi
+
+      - name: Check coverage threshold
+        shell: bash
+        run: |
+
+          COVERAGE=$(cat coverage.txt)
+
+          awk -v cov="$COVERAGE" 'BEGIN{
+            if(cov<90){
+              exit 1
+            }
+          }'
