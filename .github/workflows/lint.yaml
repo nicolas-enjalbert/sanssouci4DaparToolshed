@@ -19,8 +19,11 @@ jobs:
       - name: Install dependencies
         uses: r-lib/actions/setup-r-dependencies@v2
         with:
-          extra-packages: |
-            lintr
+          extra-packages: any::lintr, local::.
+          needs: lint
 
-      - name: Lint package
-        uses: r-lib/actions/lint@v2
+      - name: Lint
+        run: lintr::lint_package()
+        shell: Rscript {0}
+        env:
+          LINTR_ERROR_ON_LINT: true
