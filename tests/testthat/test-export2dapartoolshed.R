@@ -9,7 +9,8 @@ numdata <- data.frame(
 )
 nb_prot <- nrow(numdata)
 nb_samples <- ncol(numdata) - 1
-qfeature_obj <- QFeatures::readQFeatures(numdata, quantCols = seq_len(4), fnames = "names", name = "datatest")
+qfeature_obj <- QFeatures::readQFeatures(numdata, quantCols = seq_len(4),
+                                         fnames = "names", name = "datatest")
 
 coldata <- data.frame(
   quantCols = c("S1", "S2", "S3", "S4"),
@@ -22,7 +23,6 @@ SummarizedExperiment::colData(qfeature_obj) <- coldata
 # rownames(numdata) <- numdata$names
 # numdata <- numdata[, colnames(numdata) != "names"]
 sanssouci_init <- SansSouci4DT(qfeature_obj)
-# sanssouci_init <- SansSouci(Y = as.matrix(numdata), groups = (coldata$Condition == "C1") * 1)
 
 B <- 0
 sanssouci_obj <- fit(sanssouci_init, B = B, alpha = 0.5)
@@ -206,8 +206,7 @@ test_that("Unit test of export2dapartoolshed : errors", {
       sanssouci_obj = 10,
       pval_thr = 1,
       logfc_thr = 1
-    ),
-    regexp = "'sanssouci_obj' must be a 'SansSouci' class object."
+    )
   )
 
   # Errors with pval_thr argument

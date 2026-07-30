@@ -43,14 +43,36 @@
 #' @examples
 #' n <- 20
 #' p <- 32
-#' X <- matrix(rnorm(n * p), ncol = n)
+#' X <- as.data.frame(matrix(rnorm(n * p), ncol = n))
+#' colnames(X) <- paste0("S", seq_len(n))
+#' X[,"names"] <- paste0("Prot", seq_len(p))
 #' group <- rep(c(1, 0), length.out = n)
-#' ss_obj <- sanssouci::SansSouci(Y = X, group = group)
-#' ss_obj_fit <- sanssouci::fit(ss_obj, alpha = 0.5, B = 100)
+#' obj <- QFeatures::readQFeatures(X,
+#'   quantCols = seq_len(n),
+#'   fnames = "names",
+#'   name = "datatest"
+#' )
 #'
-#' export2dapartoolshed(ss_obj_fit, 1, 1)
+#' coldata <- data.frame(
+#'   quantCols = paste0("S", seq_len(n)),
+#'   Condition = group,
+#'   Bio.Rep = as.character(seq_len(n))
+#' )
+#' rownames(coldata) <- coldata$quantCols
+#' SummarizedExperiment::colData(obj) <- coldata
 #'
+#' ss_obj <- SansSouci4DT(obj)
+#' ss_obj <- sanssouci::fit(ss_obj, alpha = 0.5)
+#'
+#' res <- export2dapartoolshed(ss_obj, 0.1, 0.5, qfeature_obj = obj)
 export2dapartoolshed <- function(sanssouci_obj, pval_thr,
+                                 logfc_thr, qfeature_obj = NULL){
+  UseMethod("export2dapartoolshed")
+}
+
+#' @rdname export2dapartoolshed
+#' @exportS3Method
+export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
                                  logfc_thr, qfeature_obj = NULL) {
   if (missing(sanssouci_obj)) {
     stop("'sanssouci_obj' is required.")
