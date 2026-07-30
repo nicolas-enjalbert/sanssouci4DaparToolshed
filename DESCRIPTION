@@ -16,7 +16,7 @@ Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 8.0.0
 Imports: 
-    DaparToolshed,
+    DaparToolshed (>= 0.99.37),
     ggplot2,
     plotly,
     limma,
