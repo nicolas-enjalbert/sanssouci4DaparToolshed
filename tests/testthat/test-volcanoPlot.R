@@ -52,6 +52,7 @@ test_that("Unit test for volcanoPlot", {
     pval_thr = 0.5,
     logfc_thr = 0.05
   ))
+  expect_error(res <- volcanoPlot.SansSouci4DT())
   expect_error(res <- volcanoPlot(
     x = matrix(2),
     pval_thr = 0.5,
