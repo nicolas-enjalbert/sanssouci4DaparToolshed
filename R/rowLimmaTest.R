@@ -2,17 +2,18 @@
 #'
 #' @param X A \code{m x n} `numeric matrix` whose rows correspond to variables
 #'   and columns to observations.
-#' @param categ Either a `numeric vector` of \code{n} categories in \eqn{0, 1} for
-#'   the observations, or a \code{n x B} matrix stacking \code{B} such vectors
+#' @param categ Either a `numeric vector` of \code{n} categories in \eqn{0, 1}
+#'   for the observations, or a \code{n x B} matrix stacking \code{B} such vectors
 #'   (typically permutations of an original vector of size \code{n}).
-#' @param alternative DEPRECATED  A `character string` specifying the alternative hypothesis
-#'   "two.sided".
+#' @param alternative DEPRECATED  A `character string` specifying the
+#'   alternative hypothesis "two.sided".
 #'
 #' @returns A `list` containing the following components:
 #' \describe{
 #'   \item{p.value}{the p-values for the tests}
 #'   \item{estimate}{the mean difference between groups}}
-#'   Each of these elements is a matrix of size \code{m x B}, coerced to a vector of length \code{m} if \code{B=1}
+#'   Each of these elements is a matrix of size \code{m x B}, coerced to a
+#'   vector of length \code{m} if \code{B=1}
 #'
 #' @author Nicolas Enjalbert Courrech
 #'
@@ -43,7 +44,7 @@ rowLimmaTest <- function(X, categ, alternative = c("two.sided")) {
   return(list(p.value = p.value, estimate = logFC))
 }
 
-#' @title Wrapper of limma DEA pipeline
+#' @title Wrapper of limma Differential Expression Analysis pipeline
 #'
 #' @param Y A matrix (p*n) with variables to test in rows and samples in column.
 #' @param groups A binary vector (of size n) of two conditions samples.
@@ -82,8 +83,6 @@ limmaAnalyses <- function(Y, groups) {
   res_fit <- limma::contrasts.fit(res_lm, contr)
   # make test
   res_eb <- limma::eBayes(res_fit)
-  # extract
-  # TT <- limma::topTable(res_eb, sort.by = "none", number = Inf)
 
   return(list(p.values = res_eb$p.value, logFC = res_eb$coefficients))
 }
