@@ -6,7 +6,7 @@
 #' @param categ A vector of design. Should consist only of '0' and '1'.
 #' If not return an error.
 #' @param n A `numeric(1)`, expected length of categ.
-#' 
+#'
 #' @keywords internal
 #'
 #' @returns NULL if the design vector is valid, or an error if the design
@@ -35,7 +35,7 @@ categCheck <- function(categ, n) {
 #'
 #' @author Nicolas Enjalbert Courrech
 #' @keywords internal
-as.SansSouci4DT <- function(x){
+as.SansSouci4DT <- function(x) {
   stopifnot(inherits(x, "SansSouci"))
   class(x) <- c("SansSouci4DT", class(x))
   return(x)

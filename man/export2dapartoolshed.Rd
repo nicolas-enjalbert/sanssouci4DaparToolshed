@@ -10,8 +10,8 @@ export2dapartoolshed(sanssouci_obj, pval_thr, logfc_thr, qfeature_obj = NULL)
 \method{export2dapartoolshed}{SansSouci4DT}(sanssouci_obj, pval_thr, logfc_thr, qfeature_obj = NULL)
 }
 \arguments{
-\item{sanssouci_obj}{An object of class \code{SansSouci4DT} which must be calibrated
-(see sanssouci::fit function).}
+\item{sanssouci_obj}{An object of class \code{SansSouci4DT} which must be
+calibrated (see sanssouci::fit function).}
 
 \item{pval_thr}{A \code{numeric(1)}, threshold on pvalues.}
 
@@ -56,7 +56,7 @@ n <- 20
 p <- 32
 X <- as.data.frame(matrix(rnorm(n * p), ncol = n))
 colnames(X) <- paste0("S", seq_len(n))
-X[,"names"] <- paste0("Prot", seq_len(p))
+X[, "names"] <- paste0("Prot", seq_len(p))
 group <- rep(c(1, 0), length.out = n)
 obj <- QFeatures::readQFeatures(X,
   quantCols = seq_len(n),

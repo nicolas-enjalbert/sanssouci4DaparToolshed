@@ -11,8 +11,8 @@ rowLimmaTest(X, categ, alternative = c("two.sided"))
 and columns to observations.}
 
 \item{categ}{Either a \verb{numeric vector} of \code{n} categories in \eqn{0, 1}
-for the observations, or a \code{n x B} matrix stacking \code{B} such vectors
-(typically permutations of an original vector of size \code{n}).}
+for the observations, or a \code{n x B} matrix stacking \code{B} such
+vectors (typically permutations of an original vector of size \code{n}).}
 
 \item{alternative}{DEPRECATED  A \verb{character string} specifying the
 alternative hypothesis "two.sided".}
@@ -35,7 +35,7 @@ mat <- matrix(rnorm(m * n), ncol = n)
 categ <- rep(c(0, 1), times = c(27, n - 27))
 res <- rowLimmaTest(mat, categ, alternative = "two.sided")
 
-#If categ is a matrix
+# If categ is a matrix
 categ_mat <- replicate(10, sample(categ))
 res <- rowLimmaTest(mat, categ_mat, alternative = "two.sided")
 }

@@ -48,8 +48,9 @@ This package is used by the `Prostar2` package, which provides a user-friendly g
 To install `DaparToolshed` :
 
 ```{r install, eval = FALSE}
-if (!requireNamespace("BiocManager", quietly = TRUE))
-    install.packages("BiocManager")
+if (!requireNamespace("BiocManager", quietly = TRUE)) {
+  install.packages("BiocManager")
+}
 if (!requireNamespace("DaparToolshed", quietly = TRUE)) pak::pak("edyp-lab/DaparToolshed")
 if (!requireNamespace("Pirat", quietly = TRUE)) pak::pak("Pirat")
 if (!requireNamespace("scpdata", quietly = TRUE)) pak::pak("scpdata")
@@ -70,41 +71,43 @@ The dataset used in this vignette is an extract from the `Exp1_R25_pept` dataset
 ```{r dataset}
 dta <- dou2019_mouse()
 ## PREPARE DATA -----
-#keep only wanted conditions
+# keep only wanted conditions
 dtacond <- c("C10", "SVEC", "RAW")
 colselect <- which(SummarizedExperiment::colData(dta)$SampleType %in% dtacond)
 
-#create info for coldata
+# create info for coldata
 nomcoldta <- colnames(SummarizedExperiment::assay(dta[[13]][, colselect]))
-nomcond <- SummarizedExperiment::colData(dta)[which(SummarizedExperiment::colData(dta)$SampleType %in% dtacond), "SampleType"]
-#met tt ensemble
-sampledta <- data.frame(Sample.name = nomcoldta, 
-                        Condition = nomcond, 
-                        Bio.Rep = seq_along(nomcoldta))
+nomcond <- SummarizedExperiment::colData(dta)[colselect, "SampleType"]
+# met tt ensemble
+sampledta <- data.frame(
+  Sample.name = nomcoldta,
+  Condition = nomcond,
+  Bio.Rep = seq_along(nomcoldta)
+)
 sampledta$Sample.name <- gsub(".", "_", sampledta$Sample.name, fixed = TRUE)
 sampledta <- sampledta[order(sampledta$Condition), ]
 
 
-#select assay
+# select assay
 assaydta <- SummarizedExperiment::assay(dta[[13]][, colselect])
 colnames(assaydta) <- gsub(".", "_", colnames(assaydta), fixed = TRUE)
 rownames(assaydta) <- seq_len(nrow(assaydta))
 
-#get rowdata
+# get rowdata
 rowdta <- SummarizedExperiment::rowData(dta[[13]])
 rownames(rowdta) <- seq_len(nrow(rowdta))
 
-#create columns for metacell
-metadta <- as.data.frame(replicate(ncol(assaydta), 
-                                   rep("By MS/MS", nrow(assaydta)), 
-                                   simplify = FALSE))
+# create columns for metacell
+metadta <- as.data.frame(replicate(ncol(assaydta),
+  rep("By MS/MS", nrow(assaydta)),
+  simplify = FALSE
+))
 metadta <- setNames(metadta, paste0("Id_", colnames(assaydta)))
 
-#merge together
+# merge together
 quantdta <- cbind(assaydta, rowdta, metadta)
 quantdta <- as.data.frame(quantdta)
 colnames(quantdta) <- gsub(".", "_", colnames(quantdta), fixed = TRUE)
-
 ```
 
 `DaparToolshed` uses `MultiAssayExperiment`, `SummarizedExperiment` and `QFeatures` data structures.
@@ -116,20 +119,22 @@ The quantitative data do not need to be logged beforehand, as setting `logData =
 
 
 ```{r importdata, message = FALSE}
-obj <- createQFeatures(data = quantdta,
-                       file = 'dou2019_mouse',
-                       sample = sampledta,
-                       indQData = 1:72,
-                       keyId = "sequence",
-                       indexForMetacell = 87:158,
-                       logData = TRUE,
-                       force.na = TRUE,
-                       typeDataset = "peptide",
-                       parentProtId = "DatabaseAccess",
-                       analysis = "Pept_Data",
-                       software = "maxquant")
+obj <- createQFeatures(
+  data = quantdta,
+  file = "dou2019_mouse",
+  sample = sampledta,
+  indQData = 1:72,
+  keyId = "sequence",
+  indexForMetacell = 87:158,
+  logData = TRUE,
+  force.na = TRUE,
+  typeDataset = "peptide",
+  parentProtId = "DatabaseAccess",
+  analysis = "Pept_Data",
+  software = "maxquant"
+)
 
-obj <- obj[1:1000,]
+obj <- obj[1:1000, ]
 
 obj
 ```
@@ -147,52 +152,59 @@ The first step in this workflow is peptide filtering.  Not all peptides in the d
 This filtering can be done using information contained in quantitative data tags (see above) or metadata, i.e., all the variables from the original dataset that were not quantitative data and can be accessed through the `SummarizedExperiment::rowData()` function. 
 
 ```{r metadataaccess, message = FALSE}
- #quantitative data tags
+# quantitative data tags
 head(qMetacell(obj[[length(obj)]]))
 
- #metadata
+# metadata
 head(SummarizedExperiment::rowData(obj[[length(obj)]]), n = 3)
 ```
 
 To apply a filter based on tags, the `FunctionFilter()` function should be used. The functions `QFeatures::filterFeature()` and `QFeatures::VariableFilter()` can be used to create filters from metadata.
 
 ```{r filters, message = FALSE}
-#create filter to remove empty lines
+# create filter to remove empty lines
 filter_emptyline <- FunctionFilter("qMetacellWholeLine",
-                                   cmd = 'delete',
-                                   pattern = 'Missing MEC')
-#filter lines with too many NA is every condition
-filter_manyNA <- FunctionFilter('qMetacellOnConditions',
-                                cmd = 'delete',
-                                mode = 'AllCond',
-                                pattern = c('Missing MEC', 'Missing POV'),
-                                conds = SummarizedExperiment::colData(obj)$Condition,
-                                percent = TRUE,
-                                th = 0.8,
-                                operator = '>')
-#create filter to remove contaminant
-filter_contaminant <- QFeatures::VariableFilter(field = "isContaminant",
-                                                value = "TRUE",
-                                                condition = "==",
-                                                not = TRUE)
+  cmd = "delete",
+  pattern = "Missing MEC"
+)
+# filter lines with too many NA is every condition
+filter_manyNA <- FunctionFilter("qMetacellOnConditions",
+  cmd = "delete",
+  mode = "AllCond",
+  pattern = c("Missing MEC", "Missing POV"),
+  conds = SummarizedExperiment::colData(obj)$Condition,
+  percent = TRUE,
+  th = 0.8,
+  operator = ">"
+)
+# create filter to remove contaminant
+filter_contaminant <- QFeatures::VariableFilter(
+  field = "isContaminant",
+  value = "TRUE",
+  condition = "==",
+  not = TRUE
+)
 ```
 
 Doing so creates the filter but does not apply them to the data. All created filters can be applied at once using the `filterFeaturesOneSE()` function, which will perform filtering on the assay indicated by `i` and create a new assay with the filtered peptides.
 
 ```{r filtering, message = FALSE}
- #apply all filters and create new assay
-obj <- filterFeaturesOneSE(object = obj,
-                           i = length(obj),
-                           name = "Filtered",
-                           filters = list(filter_emptyline, filter_manyNA, filter_contaminant))
+# apply all filters and create new assay
+obj <- filterFeaturesOneSE(
+  object = obj,
+  i = length(obj),
+  name = "Filtered",
+  filters = list(filter_emptyline, filter_manyNA, filter_contaminant)
+)
 ```
 
 It is advised to remove proteins that no longer have an associated peptide following this filtering from the adjacency matrix in order to facilitate the subsequent aggregation step.
 
 ```{r removeprot, message = FALSE}
- #remove proteins with no associated peptides
+# remove proteins with no associated peptides
 X <- QFeatures::adjacencyMatrix(obj[[length(obj)]])
-SummarizedExperiment::rowData(obj[[length(obj)]])$adjacencyMatrix <- X[, -which(Matrix::colSums(X) == 0)]
+SummarizedExperiment::rowData(obj[[length(obj)]])$adjacencyMatrix <-
+  X[, -which(Matrix::colSums(X) == 0)]
 
 obj
 ```
@@ -205,7 +217,7 @@ The normalization step reduces biases introduced at any preliminary stage, as to
 Several algorithms are implemented in `DaparToolshed` and the list of available methods can be accessed by using `normalizeMethods()` :
 
 ```{r normalizationmethods}
- #list of available methods
+# list of available methods
 normalizeMethods()
 ```
 
@@ -223,9 +235,10 @@ The `normalizeFunction()` function allows you to normalize data using any of the
 
 ```{r normalization}
 obj <- normalizeFunction(obj,
-                         method = "MeanCentering",
-                         scaling = TRUE,
-                         type = "overall")
+  method = "MeanCentering",
+  scaling = TRUE,
+  type = "overall"
+)
 
 obj
 ```
@@ -234,11 +247,11 @@ The `compareNormalizationD_HC()` function provides a way to visually compare the
 
 ```{r normalizationplot, message = FALSE, warning=FALSE}
 obj1 <- obj[[length(obj)]]
-obj2 <- obj[[length(obj)-1]]
+obj2 <- obj[[length(obj) - 1]]
 protId <- DaparToolshed::idcol(obj1)
 
 .n <- floor(0.02 * nrow(obj1))
-.subset <- seq(nrow(obj1))
+.subset <- seq_len(nrow(obj1))
 
 compareNormalizationD_HC(
   qDataBefore = SummarizedExperiment::assay(obj1),
@@ -262,10 +275,16 @@ pal <- unique(GetColorsForConditions(design_qf(obj)$Condition))
 pattern <- c("Missing MEC", "Missing POV")
 grp <- design_qf(obj)$Condition
 
- #number of line with different amount of NA
-metacellPerLinesHisto_HC(obj[[length(obj)]], group = grp, pattern = pattern)
- #number of line with different amount of NA per condition
-metacellPerLinesHistoPerCondition_HC(obj[[length(obj)]], group = grp, pattern = pattern)
+# number of line with different amount of NA
+metacellPerLinesHisto_HC(obj[[length(obj)]],
+  group = grp,
+  pattern = pattern
+)
+# number of line with different amount of NA per condition
+metacellPerLinesHistoPerCondition_HC(obj[[length(obj)]],
+  group = grp,
+  pattern = pattern
+)
 ```
 
 The `hc_mvTypePlot2()` function displays density plots showing the distribution of partially observed values for each condition. The x-axis corresponds to the mean intensity of a peptide in a condition, while the y-axis indicates the number of observed values for that peptide under the same condition.
@@ -279,9 +298,11 @@ hc_mvTypePlot2(obj[[length(obj)]], group = grp, pattern = pattern, pal = pal)
 Numerous imputation methods exist. Here, data imputation is performed using the `wrapperPirat()` function, which is a wrapper for the `Pirat` method. `Pirat` is an imputation method that uses a penalized maximum likelihood strategy and accounts for sibling peptide correlations (@etourneau_penalized_2024). It does not require any parameter tuning. For more information on this method, see the [Pirat](https://www.bioconductor.org/packages/release/bioc/html/Pirat.html) package.
 
 ```{r imputation, message = FALSE}
-obj <- wrapperPirat(data = obj,
-                     adjmat = SummarizedExperiment::rowData(obj[[length(obj)]])$adjacencyMatrix,
-                     extension = "base")
+obj <- wrapperPirat(
+  data = obj,
+  adjmat = SummarizedExperiment::rowData(obj[[length(obj)]])$adjacencyMatrix,
+  extension = "base"
+)
 
 obj
 ```
@@ -297,14 +318,20 @@ Beforehand, it may be useful to look at the dataset in more details and to choos
 X <- SummarizedExperiment::rowData(obj[[length(obj)]])$adjacencyMatrix
 info_pept <- getProteinsStats(X)
 
-message("Total number of peptides : ", info_pept$nbPeptides, "\n",
-    "Number of specific peptides : ", info_pept$nbSpecificPeptides, "\n",
-    "Number of shared peptides : ", info_pept$nbSharedPeptides, "\n")
+message(
+  "Total number of peptides : ", info_pept$nbPeptides, "\n",
+  "Number of specific peptides : ", info_pept$nbSpecificPeptides, "\n",
+  "Number of shared peptides : ", info_pept$nbSharedPeptides, "\n"
+)
 
-message("Total number of proteins : ", info_pept$nbProt, "\n",
-    "Number of protein with only specific peptides : ", length(info_pept$protOnlyUniquePep), "\n",
-    "Number of protein with only shared peptides : ", length(info_pept$protOnlySharedPep), "\n",
-    "Number of protein with both : ", length(info_pept$protMixPep), "\n")
+message(
+  "Total number of proteins : ", info_pept$nbProt, "\n",
+  "Number of protein with only specific peptides : ",
+  length(info_pept$protOnlyUniquePep), "\n",
+  "Number of protein with only shared peptides : ",
+  length(info_pept$protOnlySharedPep), "\n",
+  "Number of protein with both : ", length(info_pept$protMixPep), "\n"
+)
 ```
 
 There are predominantly specific peptides, but several proteins contain shared peptides. The question of how to manage these shared peptides may arise. Contrarily to most aggregation functions, `RunAggregation()` allows shared peptides to be taken into account in various ways --to be specified using the `includeSharedPeptides` argument. First, they can be handled as specific peptides (`Yes_As_Specific`), in which case they will be duplicated for each protein they belong to. Second, they can have their intensity redistributed proportionally across the different proteins (`Yes_Iterative_Redistribution` or `Yes_Simple_Redistribution`). Finally, shared peptides can be ignored (`No`). If `Yes_Iterative_Redistribution`, `Yes_Simple_Redistribution` or `No` is chosen, proteins containing only shared peptides will have no associated value. 
@@ -312,13 +339,13 @@ In addition, there is the choice of aggregation function, used for quantitative 
 
 ```{r aggregation, message = FALSE}
 obj <- RunAggregation(obj,
-                      adjMatrix = 'adjacencyMatrix',
-                      includeSharedPeptides = 'Yes_Iterative_Redistribution',
-                      operator = 'Mean',
-                      considerPeptides = 'allPeptides',
-                      ponderation = "Global",
-                      max_iter = 500
-                      )
+  adjMatrix = "adjacencyMatrix",
+  includeSharedPeptides = "Yes_Iterative_Redistribution",
+  operator = "Mean",
+  considerPeptides = "allPeptides",
+  ponderation = "Global",
+  max_iter = 500
+)
 
 obj
 ```
@@ -332,11 +359,13 @@ summary(SummarizedExperiment::assay(obj[["aggregated"]]))
 A new filter can thus be applied to these protein-level data to remove them.
 
 ```{r filteringprot}
- #apply the filter to remove empty lines created
-obj <- filterFeaturesOneSE(object = obj,
-                           i = length(obj),
-                           name = "FilterProt",
-                           filters = list(filter_emptyline))
+# apply the filter to remove empty lines created
+obj <- filterFeaturesOneSE(
+  object = obj,
+  i = length(obj),
+  name = "FilterProt",
+  filters = list(filter_emptyline)
+)
 
 obj
 ```
@@ -387,15 +416,17 @@ Pour contrôler la médianne de la FDP il faut choisir le niveau $\alpha = 0.5$.
 [Ici on pourrait discuter de la valeur de B? Par défaut elle vaut 1000 dans notre code.]
 
 ```{r}
-alpha = 0.5
+alpha <- 0.5
 ```
 
 
 Le calcul des pvaleurs ainsi que la calibration des bornes post hoc se fait avec la fonction `fit` du package `sanssouci` en fournissant l'objet SansSouci, le niveau d'erreur $\alpha$ ainsi que la fonction de test. 
 
 ```{r}
-sanssouci_object_cal_limma <- fit(sanssouci_object, alpha = alpha, 
-                                  rowTestFUN = rowLimmaTest, B = 1000)
+sanssouci_object_cal_limma <- fit(sanssouci_object,
+  alpha = alpha,
+  rowTestFUN = rowLimmaTest, B = 1000
+)
 sanssouci_object_cal_limma
 ```
 
@@ -415,9 +446,11 @@ Il est possible d'avoir une garantie post hoc sur n'importe quelle sélection fa
 pval_threshold <- 0.01
 logfc_threshold <- 0.04
 
-volcanoPlot(x = sanssouci_object_cal_limma,  
-                   pval_thr = pval_threshold, 
-                   logfc_thr = logfc_threshold, interactive = FALSE)
+volcanoPlot(
+  x = sanssouci_object_cal_limma,
+  pval_thr = pval_threshold,
+  logfc_thr = logfc_threshold, interactive = FALSE
+)
 ```
 
 La filtration permets de sélectionner 39 protéines. Parmis ces protéines, la garanties statistiques à 50% permet de dire qu'il y a au moins 35 protéines qui sont réellement différentiellement exprimées. Cela revient à dire que la proportion de faux positifs n'excède pas 10%.
@@ -430,10 +463,12 @@ Proposition d'extraction et sorti : tableau data.frame qui contient toutes les p
 
 
 ```{r}
-obj_selectcond <- export2dapartoolshed(sanssouci_obj = sanssouci_object_cal_limma, 
-                            pval_thr = pval_threshold, 
-                            logfc_thr = logfc_threshold, 
-                            qfeature_obj = obj_selectcond)
+obj_selectcond <- export2dapartoolshed(
+  sanssouci_obj = sanssouci_object_cal_limma,
+  pval_thr = pval_threshold,
+  logfc_thr = logfc_threshold,
+  qfeature_obj = obj_selectcond
+)
 
 head(metadata(obj_selectcond)$posthoc_selection)
 ```

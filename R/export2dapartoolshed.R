@@ -6,8 +6,8 @@
 #' This function can be executed multiple times on a given `QFeatures` with
 #' different thresholds.
 #'
-#' @param sanssouci_obj An object of class `SansSouci4DT` which must be calibrated
-#' (see sanssouci::fit function).
+#' @param sanssouci_obj An object of class `SansSouci4DT` which must be
+#' calibrated (see sanssouci::fit function).
 #' @param pval_thr A `numeric(1)`, threshold on pvalues.
 #' @param logfc_thr A `numeric(1)`, threshold on log Fold Change.
 #' @param qfeature_obj An object of class `QFeature`.
@@ -45,7 +45,7 @@
 #' p <- 32
 #' X <- as.data.frame(matrix(rnorm(n * p), ncol = n))
 #' colnames(X) <- paste0("S", seq_len(n))
-#' X[,"names"] <- paste0("Prot", seq_len(p))
+#' X[, "names"] <- paste0("Prot", seq_len(p))
 #' group <- rep(c(1, 0), length.out = n)
 #' obj <- QFeatures::readQFeatures(X,
 #'   quantCols = seq_len(n),
@@ -66,14 +66,14 @@
 #'
 #' res <- export2dapartoolshed(ss_obj, 0.1, 0.5, qfeature_obj = obj)
 export2dapartoolshed <- function(sanssouci_obj, pval_thr,
-                                 logfc_thr, qfeature_obj = NULL){
+                                 logfc_thr, qfeature_obj = NULL) {
   UseMethod("export2dapartoolshed")
 }
 
 #' @rdname export2dapartoolshed
 #' @exportS3Method
 export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
-                                 logfc_thr, qfeature_obj = NULL) {
+                                              logfc_thr, qfeature_obj = NULL) {
   if (missing(pval_thr)) {
     stop("'pval_thr' is required.")
   }
@@ -106,14 +106,16 @@ export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
 
     previous_selection <- metadata(qfeature_obj)$posthoc_selection
     if (!is.null(previous_selection)) {
-      if (attr(previous_selection, "nb_permutation") != sanssouci_obj$parameters$B) {
+      if (attr(previous_selection,
+               "nb_permutation") != sanssouci_obj$parameters$B) {
         txt <- paste(
           "Number of permutation used must be ",
           attr(previous_selection, "nb_permutation"), "as previously saved."
         )
         stop(txt)
       }
-      if (attr(previous_selection, "rowTestFun") != sanssouci_obj$parameters$funName) {
+      if (attr(previous_selection,
+               "rowTestFun") != sanssouci_obj$parameters$funName) {
         txt <- paste(
           "Test function used must be ",
           attr(previous_selection, "rowTestFun"), "as previously saved."
@@ -136,7 +138,6 @@ export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
   if (is.null(names_prot)) {
     names_prot <- seq_along(pval)
   }
-  # name_sel_prot <- names_prot[sel_prot]
 
   if (is.null(previous_selection)) {
     df_sel <- data.frame(
@@ -166,8 +167,6 @@ export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
     return(qfeature_obj)
   }
 }
-
-
 
 
 #' Get info of post hoc selection stored in QFeatures object
@@ -214,25 +213,25 @@ export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
 #' ss_obj <- sanssouci::fit(ss_obj, alpha = 0.5, B = 0)
 #' obj <- export2dapartoolshed(ss_obj, 0.1, 0.5, obj)
 #' getPostHocBound(obj, "sel_1")
-getPostHocBound <- function(object, selection_name){
-
+getPostHocBound <- function(object, selection_name) {
   if (missing(object)) {
     stop("'object' is required.")
   }
   if (missing(selection_name)) {
     stop("'selection_name' is required.")
   }
-  if(!inherits(object, "QFeatures")){
+  if (!inherits(object, "QFeatures")) {
     stop("object must be a QFeatures object.")
   }
 
   df <- metadata(object)
 
-  if(is.null(df$posthoc_selection)){
+  if (is.null(df$posthoc_selection)) {
     stop("object must contain 'posthoc_selection' data.frame.")
   }
-  if(is.null(df$posthoc_selection[[selection_name]])){
-    stop(selection_name, " is not save in posthoc_selection data.frame in object.")
+  if (is.null(df$posthoc_selection[[selection_name]])) {
+    stop(selection_name,
+         " is not save in posthoc_selection data.frame in object.")
   }
 
   attributes(df$posthoc_selection[[selection_name]])

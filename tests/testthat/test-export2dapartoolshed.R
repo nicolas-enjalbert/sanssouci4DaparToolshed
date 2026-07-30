@@ -9,8 +9,10 @@ numdata <- data.frame(
 )
 nb_prot <- nrow(numdata)
 nb_samples <- ncol(numdata) - 1
-qfeature_obj <- QFeatures::readQFeatures(numdata, quantCols = seq_len(4),
-                                         fnames = "names", name = "datatest")
+qfeature_obj <- QFeatures::readQFeatures(numdata,
+  quantCols = seq_len(4),
+  fnames = "names", name = "datatest"
+)
 
 coldata <- data.frame(
   quantCols = c("S1", "S2", "S3", "S4"),
@@ -20,8 +22,6 @@ coldata <- data.frame(
 rownames(coldata) <- coldata$quantCols
 SummarizedExperiment::colData(qfeature_obj) <- coldata
 
-# rownames(numdata) <- numdata$names
-# numdata <- numdata[, colnames(numdata) != "names"]
 sanssouci_init <- SansSouci4DT(qfeature_obj)
 
 B <- 0
@@ -47,8 +47,8 @@ test_that("Unit/fctal test of export2dapartoolshed : good", {
   sanssouci_obj_tmp <- sanssouci_obj
   rownames(sanssouci_obj_tmp$input$Y) <- NULL
   res2 <- export2dapartoolshed(sanssouci_obj_tmp,
-                              pval_thr = pval_thr,
-                              logfc_thr = logFC_thr
+    pval_thr = pval_thr,
+    logfc_thr = logFC_thr
   )
 
   expect_equal(res2$name_prot, seq_len(10))
@@ -197,9 +197,9 @@ test_that("Unit/fctal test of export2dapartoolshed : good", {
 test_that("Unit test of export2dapartoolshed : errors", {
   # Errors with sanssouci_obj argument
   expect_error(export2dapartoolshed(
-      pval_thr = 1,
-      logfc_thr = 1
-    ))
+    pval_thr = 1,
+    logfc_thr = 1
+  ))
   # Do not give a sanssouci object
   expect_error(
     export2dapartoolshed(
@@ -221,7 +221,7 @@ test_that("Unit test of export2dapartoolshed : errors", {
   ))
   expect_error(export2dapartoolshed(
     sanssouci_obj = sanssouci_obj,
-    pval_thr = c(1,1),
+    pval_thr = c(1, 1),
     logfc_thr = 1
   ))
   expect_error(export2dapartoolshed(
@@ -243,7 +243,7 @@ test_that("Unit test of export2dapartoolshed : errors", {
   expect_error(export2dapartoolshed(
     sanssouci_obj = sanssouci_obj,
     pval_thr = 1,
-    logfc_thr = c(1,1)
+    logfc_thr = c(1, 1)
   ))
   expect_error(export2dapartoolshed(
     sanssouci_obj = sanssouci_obj,
@@ -300,9 +300,9 @@ test_that("Unit test of getPostHocBound", {
   pval_thr <- 0.5
   logFC_thr <- 0.001
   qf_obj_PH <- export2dapartoolshed(sanssouci_obj,
-                              pval_thr = pval_thr,
-                              logfc_thr = logFC_thr,
-                              qfeature_obj = qfeature_obj
+    pval_thr = pval_thr,
+    logfc_thr = logFC_thr,
+    qfeature_obj = qfeature_obj
   )
 
   res <- getPostHocBound(qf_obj_PH, selection_name = "sel_1")
@@ -315,15 +315,37 @@ test_that("Unit test of getPostHocBound", {
   expect_equal(res$TP, 0)
 
   ## error
-  expect_error({getPostHocBound(selection_name = "sel_1")},
-              "'object' is required")
-  expect_error({getPostHocBound(object = matrix(NA, nrow = 3, ncol = 4),
-                                selection = "sel_1")},
-               "object must be a QFeatures object.")
-  expect_error({getPostHocBound(object = qf_obj_PH)},
-               "'selection_name' is required")
-  expect_error({getPostHocBound(object = qfeature_obj, selection = "sel_1")},
-               "object must contain 'posthoc_selection' data.frame.")
-  expect_error({getPostHocBound(object = qf_obj_PH, selection = "wrongname")},
-               "wrongname is not save in posthoc_selection data.frame in object.")
+  expect_error(
+    {
+      getPostHocBound(selection_name = "sel_1")
+    },
+    "'object' is required"
+  )
+  expect_error(
+    {
+      getPostHocBound(
+        object = matrix(NA, nrow = 3, ncol = 4),
+        selection = "sel_1"
+      )
+    },
+    "object must be a QFeatures object."
+  )
+  expect_error(
+    {
+      getPostHocBound(object = qf_obj_PH)
+    },
+    "'selection_name' is required"
+  )
+  expect_error(
+    {
+      getPostHocBound(object = qfeature_obj, selection = "sel_1")
+    },
+    "object must contain 'posthoc_selection' data.frame."
+  )
+  expect_error(
+    {
+      getPostHocBound(object = qf_obj_PH, selection = "wrongname")
+    },
+    "wrongname is not save in posthoc_selection data.frame in object."
+  )
 })

@@ -83,7 +83,7 @@ volcanoPlot.SansSouci4DT <- function(x,
          ('foldChanges(sanssouci_object)' returns NULL)")
   }
   if (length(sanssouci::pValues(sanssouci_object)) !=
-       length(sanssouci::foldChanges(sanssouci_object))) {
+        length(sanssouci::foldChanges(sanssouci_object))) {
     stop("p-values and fold-changes associated to 'sanssouci_object'
          must be of equal length.
     ('pValues(sanssouci_object)' and 'foldChanges(sanssouci_object)'
@@ -151,11 +151,13 @@ volcanoPlot.SansSouci4DT <- function(x,
     add_signed_selections = FALSE
   )
   if (!is.null(conditions) && length(conditions) == 2) {
-    p@labels$title  <- paste0(conditions[1], "_vs_", conditions[2], 
-                              " - ", p@labels$title, sep = "")
+    p@labels$title <- paste0(conditions[1], "_vs_", conditions[2],
+      " - ", p@labels$title,
+      sep = ""
+    )
   } else if (!is.null(conditions) && length(conditions) != 2) {
     warning("'conditions' must be of length 2. No title added.")
-  } 
+  }
 
   if (interactive) {
     p <- plotly::ggplotly(p + ggplot2::labs(y = "p-value (-log10 scale)"),

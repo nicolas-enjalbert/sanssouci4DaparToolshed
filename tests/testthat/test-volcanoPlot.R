@@ -160,7 +160,7 @@ test_that("Fonctional test for volcanoPlot", {
 
   expect_equal(
     res@labels$title,
-    paste( "group1_vs_group0 - ",
+    paste("group1_vs_group0 - ",
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
@@ -188,22 +188,24 @@ test_that("Fonctional test for volcanoPlot", {
   )
 
   ####### error in condition
-  expect_warning(res <- volcanoPlot(
-    x = ss_obj_fit,
-    pval_thr = 0.5,
-    logfc_thr = 0.05,
-    conditions = c(
-      "group1", "group0",
-      "fake_group"
+  expect_warning(
+    res <- volcanoPlot(
+      x = ss_obj_fit,
+      pval_thr = 0.5,
+      logfc_thr = 0.05,
+      conditions = c(
+        "group1", "group0",
+        "fake_group"
+      ),
+      pal = c("red", "blue")
     ),
-    pal = c("red", "blue")
-  ), 
-  regexp = "'conditions' must be of length 2. No title added.")
+    regexp = "'conditions' must be of length 2. No title added."
+  )
 
 
   expect_equal(
     res@labels$title,
-    paste( 
+    paste(
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
