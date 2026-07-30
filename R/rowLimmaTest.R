@@ -24,8 +24,11 @@
 #' n <- 38
 #' mat <- matrix(rnorm(m * n), ncol = n)
 #' categ <- rep(c(0, 1), times = c(27, n - 27))
-#' res <- rowLimmaTest(mat, categ, alternative = "greater")
-#'
+#' res <- rowLimmaTest(mat, categ, alternative = "two.sided")
+#' 
+#' #If categ is a matrix
+#' categ_mat <- replicate(10, sample(categ))
+#' res <- rowLimmaTest(mat, categ_mat, alternative = "two.sided")
 rowLimmaTest <- function(X, categ, alternative = c("two.sided")) {
   categ <- as.matrix(categ)
   B <- ncol(categ)

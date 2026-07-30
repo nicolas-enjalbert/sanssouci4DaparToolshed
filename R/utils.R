@@ -32,6 +32,7 @@ categCheck <- function(categ, n) {
 #' @returns a `SansSouci4DT` object
 #'
 #' @author Nicolas Enjalbert Courrech
+#' @keywords internal
 as.SansSouci4DT <- function(x){
   stopifnot(inherits(x, "SansSouci"))
   class(x) <- c("SansSouci4DT", class(x))

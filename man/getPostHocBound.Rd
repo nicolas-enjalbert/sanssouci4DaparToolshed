@@ -7,7 +7,7 @@
 getPostHocBound(object, selection_name)
 }
 \arguments{
-\item{object}{QFeatures object containing post hoc selection}
+\item{object}{\code{QFeatures} object containing post hoc selection}
 
 \item{selection_name}{character, name of the selection}
 }

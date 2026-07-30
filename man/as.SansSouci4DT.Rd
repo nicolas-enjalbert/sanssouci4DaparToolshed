@@ -18,3 +18,4 @@ Add "SansSouci4DT" class to a "SansSouci" object
 \author{
 Nicolas Enjalbert Courrech
 }
+\keyword{internal}

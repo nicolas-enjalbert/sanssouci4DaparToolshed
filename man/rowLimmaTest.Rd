@@ -10,19 +10,20 @@ rowLimmaTest(X, categ, alternative = c("two.sided"))
 \item{X}{A \code{m x n} \verb{numeric matrix} whose rows correspond to variables
 and columns to observations.}
 
-\item{categ}{Either a \verb{numeric vector} of \code{n} categories in \eqn{0, 1} for
-the observations, or a \code{n x B} matrix stacking \code{B} such vectors
+\item{categ}{Either a \verb{numeric vector} of \code{n} categories in \eqn{0, 1}
+for the observations, or a \code{n x B} matrix stacking \code{B} such vectors
 (typically permutations of an original vector of size \code{n}).}
 
-\item{alternative}{DEPRECATED  A \verb{character string} specifying the alternative hypothesis
-"two.sided".}
+\item{alternative}{DEPRECATED  A \verb{character string} specifying the
+alternative hypothesis "two.sided".}
 }
 \value{
 A \code{list} containing the following components:
 \describe{
 \item{p.value}{the p-values for the tests}
 \item{estimate}{the mean difference between groups}}
-Each of these elements is a matrix of size \code{m x B}, coerced to a vector of length \code{m} if \code{B=1}
+Each of these elements is a matrix of size \code{m x B}, coerced to a
+vector of length \code{m} if \code{B=1}
 }
 \description{
 Limma test for rows of a matrix
@@ -32,8 +33,11 @@ m <- 300
 n <- 38
 mat <- matrix(rnorm(m * n), ncol = n)
 categ <- rep(c(0, 1), times = c(27, n - 27))
-res <- rowLimmaTest(mat, categ, alternative = "greater")
+res <- rowLimmaTest(mat, categ, alternative = "two.sided")
 
+#If categ is a matrix
+categ_mat <- replicate(10, sample(categ))
+res <- rowLimmaTest(mat, categ_mat, alternative = "two.sided")
 }
 \author{
 Nicolas Enjalbert Courrech

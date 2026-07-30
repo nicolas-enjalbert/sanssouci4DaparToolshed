@@ -2,7 +2,7 @@
 % Please edit documentation in R/rowLimmaTest.R
 \name{limmaAnalyses}
 \alias{limmaAnalyses}
-\title{Wrapper of limma DEA pipeline}
+\title{Wrapper of limma Differential Expression Analysis pipeline}
 \usage{
 limmaAnalyses(Y, groups)
 }
@@ -16,7 +16,7 @@ A list with 'p.values' a vector of size p of raw pvalues
 and 'logFC' a vector of size p of log Fold Change, both from Limma pipeline.
 }
 \description{
-Wrapper of limma DEA pipeline
+Wrapper of limma Differential Expression Analysis pipeline
 }
 \examples{
 Y <- matrix(rnorm(50), ncol = 5)

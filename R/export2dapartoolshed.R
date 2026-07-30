@@ -179,7 +179,7 @@ export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
 
 #' Get info of post hoc selection
 #'
-#' @param object QFeatures object containing post hoc selection
+#' @param object `QFeatures` object containing post hoc selection
 #' @param selection_name character, name of the selection
 #'
 #' @importFrom S4Vectors metadata metadata<-
