@@ -2,7 +2,7 @@
 
 <!-- badges: start -->
 [![R-CMD-check](https://github.com/nicolas-enjalbert/sanssouci4DaparToolshed/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/nicolas-enjalbert/sanssouci4DaparToolshed/actions)
-[![Codecov](https://codecov.io/gh/nicolas-enjalbert/sanssouci4DaparToolshed/branch/main/graph/badge.svg)](https://app.codecov.io/gh/nicolas-enjalbert/sanssouci4DaparToolshed)
+[![coverage](https://github.com/sanssouci-org/sanssouci4DaparToolshed/actions/workflows/test_covr.yaml/badge.svg)](https://github.com/sanssouci-org/sanssouci4DaparToolshed/actions/workflows/test_covr.yaml)
 <!-- badges: end -->
 
 ## Overview
