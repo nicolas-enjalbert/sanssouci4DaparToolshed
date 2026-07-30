@@ -30,3 +30,7 @@ jobs:
 
           percent <- covr::percent_coverage(cov)
           cat("\nCoverage:", percent, "%\n")
+          
+          if (percent < 90) {
+            stop("Coverage below threshold")
+          }
