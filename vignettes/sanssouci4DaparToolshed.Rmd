@@ -374,7 +374,7 @@ library(sanssouci)
 indexcond <- which(colData(obj)$Condition %in% c("C10", "RAW"))
 obj_selectcond <- obj[, indexcond]
 
-sanssouci_object <- wrapper_QFtoSansSouci(obj_selectcond)
+sanssouci_object <- SansSouci4DT(obj_selectcond)
 ```
 
 ### Hypothesis testing and post hoc calibration 
@@ -415,7 +415,7 @@ Il est possible d'avoir une garantie post hoc sur n'importe quelle sélection fa
 pval_threshold <- 0.01
 logfc_threshold <- 0.04
 
-VolcanoPlot_ss4DT(sanssouci_object = sanssouci_object_cal_limma,  
+volcanoPlot(x = sanssouci_object_cal_limma,  
                    pval_thr = pval_threshold, 
                    logfc_thr = logfc_threshold, interactive = FALSE)
 ```

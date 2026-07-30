@@ -1,13 +1,13 @@
 #' @title Convert a QFeatures in Sanssouci object
 #'
 #' @description
-#' Convert an assay of an object of class `QFeatures` in a `Sanssouci` object.
+#' Convert an assay of an object of class `QFeatures` in a `SansSouci4DT` object.
 #'
 #' @param obj An object of class `QFeatures`.
 #' @param i An `integer(1)` index or a `character(1)` name of the assay which
 #' will be converted. If NULL, the last assay will be selected by default.
 #'
-#' @returns An object of class `SansSouci`.
+#' @returns An object of class `SansSouci4DT`.
 #'
 #' @importFrom SummarizedExperiment assay
 #' @importFrom DaparToolshed design_qf
@@ -39,9 +39,10 @@
 #' rownames(coldata) <- coldata$quantCols
 #' SummarizedExperiment::colData(obj) <- coldata
 #'
-#' wrapper_QFtoSansSouci(obj)
+#' ss_obj <- SansSouci4DT(obj)
+#' ss_obj
 #'
-wrapper_QFtoSansSouci <- function(obj, i = NULL) {
+SansSouci4DT <- function(obj, i = NULL) {
   if (missing(obj)) {
     stop("'obj' is required.")
   }
@@ -74,5 +75,6 @@ wrapper_QFtoSansSouci <- function(obj, i = NULL) {
     Y = Y,
     groups = groups
   )
+  SansSouciobj <- as.SansSouci4DT(SansSouciobj)
   return(SansSouciobj)
 }

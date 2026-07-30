@@ -1,4 +1,4 @@
-test_that("unit test of wrapper_QFtoSansSouci()", {
+test_that("unit test of SansSouci4DT()", {
   numdata <- data.frame(
     S1 = c(2, 5, 9, 10, 7, 8, 6, 8, 6, 7),
     S2 = c(7, 8, 5, 5, 7, 9, 9, 4, 9, 1),
@@ -16,15 +16,16 @@ test_that("unit test of wrapper_QFtoSansSouci()", {
   rownames(coldata) <- coldata$quantCols
   SummarizedExperiment::colData(obj) <- coldata
 
-  res <- wrapper_QFtoSansSouci(obj)
+  res <- SansSouci4DT(obj)
 
-  expect_true(is(res, "SansSouci"))
+  expect_is(res, "SansSouci")
+  expect_is(res, "SansSouci4DT")
   expect_equal(length(res), 3)
   expect_true(all(res$input$Y == numdata[, -5]))
 
-  expect_error(wrapper_QFtoSansSouci())
-  expect_error(wrapper_QFtoSansSouci(obj[[1]]))
-  expect_error(wrapper_QFtoSansSouci(obj, i = c(1, 2)))
-  expect_error(wrapper_QFtoSansSouci(obj, i = "test"))
-  expect_error(wrapper_QFtoSansSouci(obj, i = 3))
+  expect_error(SansSouci4DT())
+  expect_error(SansSouci4DT(obj[[1]]))
+  expect_error(SansSouci4DT(obj, i = c(1, 2)))
+  expect_error(SansSouci4DT(obj, i = "test"))
+  expect_error(SansSouci4DT(obj, i = 3))
 })

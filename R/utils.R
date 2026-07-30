@@ -1,7 +1,7 @@
 #' @title Check design vector
 #'
 #' @description
-#' Check whether the design vector is valid. 
+#' Check whether the design vector is valid.
 #'
 #' @param categ A vector of design. Should consist only of '0' and '1'.
 #' If not return an error.
@@ -9,7 +9,7 @@
 #'
 #' @keywords internal
 #'
-#' @returns NULL if the design vector is valid, or an error if the design 
+#' @returns NULL if the design vector is valid, or an error if the design
 #' vector is invalid.
 #'
 #' @author Nicolas Enjalbert Courrech
@@ -28,8 +28,19 @@ categCheck <- function(categ, n) {
   categ <- as.factor(categ)
   cats <- levels(categ)
   if (!identical(cats, c("0", "1")) && length(cats) <= 2) {
-    txt <- paste0("'", name, "' should consist only of '0' and '1' or distinct 
+    txt <- paste0("'", name, "' should consist only of '0' and '1' or distinct
                   continuous values.")
     stop(txt)
   }
+}
+
+#' Add "SansSouci4DT" class to a "SansSouci" object
+#'
+#' @param x a SansSouci object
+#'
+#' @returns a SansSouci4DT object
+as.SansSouci4DT <- function(x){
+  stopifnot(inherits(x, "SansSouci"))
+  class(x) <- c("SansSouci4DT", class(x))
+  return(x)
 }
