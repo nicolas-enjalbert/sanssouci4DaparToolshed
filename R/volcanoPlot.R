@@ -1,12 +1,12 @@
 #' @title Volcano plot
 #'
 #' @description
-#' Create a volcano plot from a `Sanssouci` object. This volcano plot is made
+#' Create a volcano plot from a `SansSouci4DT` object. This volcano plot is made
 #' with `ggplot2` and indicates the number of selected proteins with the given
 #' thresholds, as well as the minimal number of true positives.
 #'
-#' @param x A `SansSouci` object. Must be calibrated using the
-#' function `fit`.
+#' @param x A `SansSouci4DT` object. Must be calibrated using the
+#' function `sanssouci::fit`.
 #' @param pval_thr A `numeric(1)` which is the p-value threshold under which
 #' proteins are selected.
 #' @param qval_thr A `numeric(1)` which is the q-value threshold under which
@@ -18,7 +18,7 @@
 #' and differential proteins.
 #' @param interactive A `logical(1)` defining if the volcano plot should be
 #' interactive and use plotly (TRUE) or not and use ggplot2 (FALSE).
-#' @param ... parameters to pass to sanssouci::volcanoPlot.numeric
+#' @param ... unused
 #'
 #' @returns If `interactive` is TRUE, a `plotly` object providing a volcano
 #' plot. Else, a `ggplot2` object providing a volcano plot.
@@ -75,9 +75,6 @@ volcanoPlot.SansSouci4DT <- function(x,
     stop("'x' is required.")
   }
   sanssouci_object <- x
-  if (!inherits(sanssouci_object, "SansSouci")) {
-    stop("'sanssouci_object' must be an object of class SansSouci.")
-  }
   if (is.null(sanssouci::pValues(sanssouci_object))) {
     stop("'sanssouci_object' has no p-values associated.
          ('pValues(sanssouci_object)' returns NULL)")

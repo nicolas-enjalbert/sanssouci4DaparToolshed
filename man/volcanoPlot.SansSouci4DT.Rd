@@ -16,8 +16,8 @@
 )
 }
 \arguments{
-\item{x}{A \code{SansSouci} object. Must be calibrated using the
-function \code{fit}.}
+\item{x}{A \code{SansSouci4DT} object. Must be calibrated using the
+function \code{sanssouci::fit}.}
 
 \item{pval_thr}{A \code{numeric(1)} which is the p-value threshold under which
 proteins are selected.}
@@ -36,14 +36,14 @@ and differential proteins.}
 \item{interactive}{A \code{logical(1)} defining if the volcano plot should be
 interactive and use plotly (TRUE) or not and use ggplot2 (FALSE).}
 
-\item{...}{parameters to pass to sanssouci::volcanoPlot.numeric}
+\item{...}{unused}
 }
 \value{
 If \code{interactive} is TRUE, a \code{plotly} object providing a volcano
 plot. Else, a \code{ggplot2} object providing a volcano plot.
 }
 \description{
-Create a volcano plot from a \code{Sanssouci} object. This volcano plot is made
+Create a volcano plot from a \code{SansSouci4DT} object. This volcano plot is made
 with \code{ggplot2} and indicates the number of selected proteins with the given
 thresholds, as well as the minimal number of true positives.
 }
