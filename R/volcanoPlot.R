@@ -39,7 +39,7 @@
 #' p <- 32
 #' X <- as.data.frame(matrix(rnorm(n * p), ncol = n))
 #' colnames(X) <- paste0("S", seq_len(n))
-#' X[,"names"] <- paste0("Prot", seq_len(p))
+#' X[, "names"] <- paste0("Prot", seq_len(p))
 #' group <- rep(c(1, 0), length.out = n)
 #' obj <- QFeatures::readQFeatures(X,
 #'   quantCols = seq_len(n),
@@ -70,7 +70,6 @@ volcanoPlot.SansSouci4DT <- function(x,
                                      conditions = NULL,
                                      pal = NULL,
                                      interactive = FALSE, ...) {
-
   if (missing(x)) {
     stop("'x' is required.")
   }
@@ -83,7 +82,8 @@ volcanoPlot.SansSouci4DT <- function(x,
     stop("'sanssouci_object' has no fold-changes associated.
          ('foldChanges(sanssouci_object)' returns NULL)")
   }
-  if (length(sanssouci::pValues(sanssouci_object)) != length(sanssouci::foldChanges(sanssouci_object))) {
+  if (length(sanssouci::pValues(sanssouci_object)) !=
+       length(sanssouci::foldChanges(sanssouci_object))) {
     stop("p-values and fold-changes associated to 'sanssouci_object'
          must be of equal length.
     ('pValues(sanssouci_object)' and 'foldChanges(sanssouci_object)'
@@ -127,15 +127,6 @@ volcanoPlot.SansSouci4DT <- function(x,
     warning("Filtering both on p-values and BH-adjusted p-values")
   }
 
-  if (is.null(conditions)) {
-    title <- ""
-  } else if (!is.null(conditions) && length(conditions) != 2) {
-    warning("'conditions' must be of length 2. No title added.")
-    title <- ""
-  } else {
-    title <- paste0(conditions[1], "_vs_", conditions[2])
-  }
-
   if (is.null(pal)) {
     pal <- c(Out = "gray", In = "orange", "white")
   } else if (length(pal) != 2) {
@@ -145,27 +136,32 @@ volcanoPlot.SansSouci4DT <- function(x,
     pal <- c(Out = pal[1], In = pal[2], "white")
   }
 
-  p <- volcanoPlot(x = as.vector(sanssouci::foldChanges(sanssouci_object)),
-                   p_value = as.vector(sanssouci::pValues(sanssouci_object)),
-                   thr = sanssouci::thresholds(sanssouci_object),
-                   p_value_bound = sanssouci::pValues(sanssouci_object),
-                   p = pval_thr,
-                   q = qval_thr,
-                   r = logfc_thr,
-                   pch = 20,
-                   cex = c(2, 2),
-                   col = pal,
-                   feature_label = "protein",
-                   add_signed_selections = FALSE)
+  p <- volcanoPlot(
+    x = as.vector(sanssouci::foldChanges(sanssouci_object)),
+    p_value = as.vector(sanssouci::pValues(sanssouci_object)),
+    thr = sanssouci::thresholds(sanssouci_object),
+    p_value_bound = sanssouci::pValues(sanssouci_object),
+    p = pval_thr,
+    q = qval_thr,
+    r = logfc_thr,
+    pch = 20,
+    cex = c(2, 2),
+    col = pal,
+    feature_label = "protein",
+    add_signed_selections = FALSE
+  )
+  if (!is.null(conditions) && length(conditions) == 2) {
+    p@labels$title  <- paste0(conditions[1], "_vs_", conditions[2], 
+                              " - ", p@labels$title, sep = "")
+  } else if (!is.null(conditions) && length(conditions) != 2) {
+    warning("'conditions' must be of length 2. No title added.")
+  } 
 
   if (interactive) {
     p <- plotly::ggplotly(p + ggplot2::labs(y = "p-value (-log10 scale)"),
-                          tooltip = "text") |>
+      tooltip = "text"
+    ) |>
       plotly::layout(
-          # title = list(
-          #   text = title,
-          #   font = list(size = 18)
-          # ),
         margin = list(t = 60, b = 70)
       )
   }

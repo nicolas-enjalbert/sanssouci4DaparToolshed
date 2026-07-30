@@ -53,7 +53,7 @@ n <- 20
 p <- 32
 X <- as.data.frame(matrix(rnorm(n * p), ncol = n))
 colnames(X) <- paste0("S", seq_len(n))
-X[,"names"] <- paste0("Prot", seq_len(p))
+X[, "names"] <- paste0("Prot", seq_len(p))
 group <- rep(c(1, 0), length.out = n)
 obj <- QFeatures::readQFeatures(X,
   quantCols = seq_len(n),

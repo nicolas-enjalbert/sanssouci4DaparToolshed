@@ -160,7 +160,7 @@ test_that("Fonctional test for volcanoPlot", {
 
   expect_equal(
     res@labels$title,
-    paste( #"group1_vs_group0 - ",
+    paste( "group1_vs_group0 - ",
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
@@ -197,12 +197,13 @@ test_that("Fonctional test for volcanoPlot", {
       "fake_group"
     ),
     pal = c("red", "blue")
-  ))
+  ), 
+  regexp = "'conditions' must be of length 2. No title added.")
 
 
   expect_equal(
     res@labels$title,
-    paste( #"group1_vs_group0 - ",
+    paste( 
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
@@ -241,7 +242,7 @@ test_that("Fonctional test for volcanoPlot", {
 
   expect_equal(
     res@labels$title,
-    paste( #"group1_vs_group0 - ",
+    paste("group1_vs_group0 - ",
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
