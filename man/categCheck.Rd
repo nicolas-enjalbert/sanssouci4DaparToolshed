@@ -19,12 +19,6 @@ vector is invalid.
 \description{
 Check whether the design vector is valid.
 }
-\examples{
-group <- rep(c("1", "0"), times = c(10, 4))
-categCheck(group, length(group))
-
-}
 \author{
-Nicolas Enjalbert Courrech
+Nicolas Enjalbert Courrech from package sanssouci
 }
-\keyword{internal}

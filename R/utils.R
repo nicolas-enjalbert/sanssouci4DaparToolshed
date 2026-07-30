@@ -7,19 +7,10 @@
 #' If not return an error.
 #' @param n A `numeric(1)`, expected length of categ.
 #'
-#' @keywords internal
-#'
 #' @returns NULL if the design vector is valid, or an error if the design
 #' vector is invalid.
 #'
-#' @author Nicolas Enjalbert Courrech
-#'
-#' @export
-#'
-#' @examples
-#' group <- rep(c("1", "0"), times = c(10, 4))
-#' categCheck(group, length(group))
-#'
+#' @author Nicolas Enjalbert Courrech from package sanssouci
 categCheck <- function(categ, n) {
   name <- as.character(substitute(categ))
   if (length(categ) != n) {
@@ -36,9 +27,11 @@ categCheck <- function(categ, n) {
 
 #' Add "SansSouci4DT" class to a "SansSouci" object
 #'
-#' @param x a SansSouci object
+#' @param x a `SansSouci` object
 #'
-#' @returns a SansSouci4DT object
+#' @returns a `SansSouci4DT` object
+#'
+#' @author Nicolas Enjalbert Courrech
 as.SansSouci4DT <- function(x){
   stopifnot(inherits(x, "SansSouci"))
   class(x) <- c("SansSouci4DT", class(x))

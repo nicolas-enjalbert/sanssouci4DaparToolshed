@@ -7,11 +7,14 @@
 as.SansSouci4DT(x)
 }
 \arguments{
-\item{x}{a SansSouci object}
+\item{x}{a \code{SansSouci} object}
 }
 \value{
-a SansSouci4DT object
+a \code{SansSouci4DT} object
 }
 \description{
 Add "SansSouci4DT" class to a "SansSouci" object
+}
+\author{
+Nicolas Enjalbert Courrech
 }
