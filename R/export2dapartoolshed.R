@@ -1,13 +1,13 @@
 #' @title Extract selection and post hoc bound to QFeature object
 #'
 #' @description
-#' Extract selection and post hoc bound form a `Sanssouci` object to either a
+#' Extract selection and post hoc bound form a `SansSouci4DT` object to either a
 #' `data.frame` a `QFeatures`.
 #' This function can be executed multiple times on a given `QFeatures` with
 #' different thresholds.
 #'
-#' @param sanssouci_obj An object of class `SansSouci` which must be calibrated
-#' (see fit function in sanssouci package).
+#' @param sanssouci_obj An object of class `SansSouci4DT` which must be calibrated
+#' (see sanssouci::fit function).
 #' @param pval_thr A `numeric(1)`, threshold on pvalues.
 #' @param logfc_thr A `numeric(1)`, threshold on log Fold Change.
 #' @param qfeature_obj An object of class `QFeature`.
@@ -177,7 +177,7 @@ export2dapartoolshed.SansSouci4DT <- function(sanssouci_obj, pval_thr,
 
 
 
-#' Get info of post hoc selection
+#' Get info of post hoc selection stored in QFeatures object
 #'
 #' @param object `QFeatures` object containing post hoc selection
 #' @param selection_name character, name of the selection
