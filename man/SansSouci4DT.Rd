@@ -2,7 +2,7 @@
 % Please edit documentation in R/SansSouci4DT_wrapper.R
 \name{SansSouci4DT}
 \alias{SansSouci4DT}
-\title{Convert a QFeatures in Sanssouci object}
+\title{Convert a QFeatures in Sanssouci4DT object}
 \usage{
 SansSouci4DT(obj, i = NULL)
 }
@@ -16,7 +16,8 @@ will be converted. If NULL, the last assay will be selected by default.}
 An object of class \code{SansSouci4DT}.
 }
 \description{
-Convert an assay of an object of class \code{QFeatures} in a \code{SansSouci4DT} object.
+Convert an assay of an object of class \code{QFeatures} in a \code{SansSouci4DT}
+object. A \code{SansSouci4DT} object inherits from the \code{SansSouci} object class.
 }
 \examples{
 numdata <- data.frame(
@@ -42,7 +43,6 @@ SummarizedExperiment::colData(obj) <- coldata
 
 ss_obj <- SansSouci4DT(obj)
 ss_obj
-
 }
 \author{
 Manon Gaudin

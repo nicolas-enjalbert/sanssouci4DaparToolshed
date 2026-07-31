@@ -2,17 +2,18 @@
 #'
 #' @param X A \code{m x n} `numeric matrix` whose rows correspond to variables
 #'   and columns to observations.
-#' @param categ Either a `numeric vector` of \code{n} categories in \eqn{0, 1} for
-#'   the observations, or a \code{n x B} matrix stacking \code{B} such vectors
-#'   (typically permutations of an original vector of size \code{n}).
-#' @param alternative DEPRECATED  A `character string` specifying the alternative hypothesis
-#'   "two.sided".
+#' @param categ Either a `numeric vector` of \code{n} categories in \eqn{0, 1}
+#'   for the observations, or a \code{n x B} matrix stacking \code{B} such
+#'   vectors (typically permutations of an original vector of size \code{n}).
+#' @param alternative DEPRECATED  A `character string` specifying the
+#'   alternative hypothesis "two.sided".
 #'
 #' @returns A `list` containing the following components:
 #' \describe{
 #'   \item{p.value}{the p-values for the tests}
 #'   \item{estimate}{the mean difference between groups}}
-#'   Each of these elements is a matrix of size \code{m x B}, coerced to a vector of length \code{m} if \code{B=1}
+#'   Each of these elements is a matrix of size \code{m x B}, coerced to a
+#'   vector of length \code{m} if \code{B=1}
 #'
 #' @author Nicolas Enjalbert Courrech
 #'
@@ -23,8 +24,11 @@
 #' n <- 38
 #' mat <- matrix(rnorm(m * n), ncol = n)
 #' categ <- rep(c(0, 1), times = c(27, n - 27))
-#' res <- rowLimmaTest(mat, categ, alternative = "greater")
+#' res <- rowLimmaTest(mat, categ, alternative = "two.sided")
 #'
+#' # If categ is a matrix
+#' categ_mat <- replicate(10, sample(categ))
+#' res <- rowLimmaTest(mat, categ_mat, alternative = "two.sided")
 rowLimmaTest <- function(X, categ, alternative = c("two.sided")) {
   categ <- as.matrix(categ)
   B <- ncol(categ)
@@ -43,7 +47,7 @@ rowLimmaTest <- function(X, categ, alternative = c("two.sided")) {
   return(list(p.value = p.value, estimate = logFC))
 }
 
-#' @title Wrapper of limma DEA pipeline
+#' @title Wrapper of limma Differential Expression Analysis pipeline
 #'
 #' @param Y A matrix (p*n) with variables to test in rows and samples in column.
 #' @param groups A binary vector (of size n) of two conditions samples.
@@ -82,8 +86,6 @@ limmaAnalyses <- function(Y, groups) {
   res_fit <- limma::contrasts.fit(res_lm, contr)
   # make test
   res_eb <- limma::eBayes(res_fit)
-  # extract
-  # TT <- limma::topTable(res_eb, sort.by = "none", number = Inf)
 
   return(list(p.values = res_eb$p.value, logFC = res_eb$coefficients))
 }

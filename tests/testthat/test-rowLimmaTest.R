@@ -38,7 +38,10 @@ test_that("unit test of rowLimmaTest() : bad use", {
   B <- 7
   null_groups <- replicate(B, sample(groups))
 
-  expect_error(rowLimmaTest(Y, null_groups), "groups should be of length 5, not 3")
+  expect_error(
+    rowLimmaTest(Y, null_groups),
+    "groups should be of length 5, not 3"
+  )
 
   ## not good group names
   Y <- matrix(rnorm(n * p), ncol = n)
@@ -101,21 +104,19 @@ test_that("Consistance with Limma analyses", {
 
   res_row <- rowLimmaTest(Y, groups)
 
-  {
-    groups <- as.factor(groups)
-    # Create design matrix with no intercepts
-    design.matrix <- stats::model.matrix(~ 0 + groups)
-    # Fit a linear model
-    res_lm <- limma::lmFit(Y, design.matrix)
-    # Define contrast : here onlye group1 vs group0
-    contr <- limma::makeContrasts(groups1 - groups0,
-      levels = colnames(design.matrix)
-    )
-    # fit with contrast
-    res_fit <- limma::contrasts.fit(res_lm, contr)
-    # make test
-    res_eb <- limma::eBayes(res_fit)
-  }
+  groups <- as.factor(groups)
+  # Create design matrix with no intercepts
+  design.matrix <- stats::model.matrix(~ 0 + groups)
+  # Fit a linear model
+  res_lm <- limma::lmFit(Y, design.matrix)
+  # Define contrast : here onlye group1 vs group0
+  contr <- limma::makeContrasts(groups1 - groups0,
+    levels = colnames(design.matrix)
+  )
+  # fit with contrast
+  res_fit <- limma::contrasts.fit(res_lm, contr)
+  # make test
+  res_eb <- limma::eBayes(res_fit)
 
   expect_equal(as.vector(res$p.values), as.vector(res_eb$p.value))
   expect_equal(as.vector(res$logFC), as.vector(res_eb$coefficients))
@@ -142,6 +143,7 @@ test_that("Consistance with Limma analyses", {
     res_eb <- limma::eBayes(res_fit)
 
     expect_equal(as.vector(res_row_B$p.value[, 1]), as.vector(res_eb$p.value))
-    expect_equal(as.vector(res_row_B$estimate[, 1]), as.vector(res_eb$coefficients))
+    expect_equal(as.vector(res_row_B$estimate[, 1]),
+                 as.vector(res_eb$coefficients))
   }
 })
