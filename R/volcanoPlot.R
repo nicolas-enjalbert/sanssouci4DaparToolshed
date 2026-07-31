@@ -136,11 +136,15 @@ volcanoPlot.SansSouci4DT <- function(x,
     pal <- c(Out = pal[1], In = pal[2], "white")
   }
 
+  foldchanges <- as.vector(sanssouci::foldChanges(sanssouci_object))
+  p.values <- as.vector(sanssouci::pValues(sanssouci_object))
+  names(p.values) <- rownames(sanssouci_object$input$Y)
+
   p <- volcanoPlot(
-    x = as.vector(sanssouci::foldChanges(sanssouci_object)),
-    p_value = as.vector(sanssouci::pValues(sanssouci_object)),
+    x = foldchanges,
+    p_value = p.values,
     thr = sanssouci::thresholds(sanssouci_object),
-    p_value_bound = sanssouci::pValues(sanssouci_object),
+    p_value_bound = p.values,
     p = pval_thr,
     q = qval_thr,
     r = logfc_thr,
