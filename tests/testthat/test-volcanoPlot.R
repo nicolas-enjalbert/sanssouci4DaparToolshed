@@ -164,7 +164,8 @@ test_that("Fonctional test for volcanoPlot", {
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
-      " true positives (FDP \u2264 ",
+      " true ", ifelse(PHB[["TP"]] == 1, "positive", "positives"),
+      " (FDP \u2264 ",
       sprintf("%.2f", PHB[["FDP"]]),
       ")",
       sep = ""
@@ -209,7 +210,8 @@ test_that("Fonctional test for volcanoPlot", {
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
-      " true positives (FDP \u2264 ",
+      " true ", ifelse(PHB[["TP"]] == 1, "positive", "positives"),
+      " (FDP \u2264 ",
       sprintf("%.2f", PHB[["FDP"]]),
       ")",
       sep = ""
@@ -248,7 +250,8 @@ test_that("Fonctional test for volcanoPlot", {
       length(S),
       " proteins selected\nAt least ",
       PHB[["TP"]],
-      " true positives (FDP \u2264 ",
+      " true ", ifelse(PHB[["TP"]] == 1, "positive", "positives"),
+      " (FDP \u2264 ",
       sprintf("%.2f", PHB[["FDP"]]),
       ")",
       sep = ""
