@@ -406,10 +406,14 @@ The default method is called the Simes method. When the number of samples per co
 The first step is to init a `SansSouci` object. More precisely, we init a `SansSouci4DT` object which provide a `SansSouci` object for the `DaparToolshed` pipeline described in this vignette. 
 
 ```{r}
-if(!require(sanssouci4DaparToolshed)) {pak::pak("sanssouci-org/sanssouci4DaparToolshed")}
+if (!require(sanssouci4DaparToolshed)) {
+  pak::pak("sanssouci-org/sanssouci4DaparToolshed")
+}
 library(sanssouci4DaparToolshed)
 
-if(!require(sanssouci)){pak::pak("sanssouci-org/sanssouci")}
+if (!require(sanssouci)) {
+  pak::pak("sanssouci-org/sanssouci")
+}
 library(sanssouci)
 
 sanssouci_object <- SansSouci4DT(obj_selectcond)
