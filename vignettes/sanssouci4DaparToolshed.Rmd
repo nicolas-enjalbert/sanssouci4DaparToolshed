@@ -53,12 +53,10 @@ if (!requireNamespace("BiocManager", quietly = TRUE)) {
 }
 if (!requireNamespace("DaparToolshed", quietly = TRUE)) pak::pak("edyp-lab/DaparToolshed")
 if (!requireNamespace("Pirat", quietly = TRUE)) pak::pak("Pirat")
-if (!requireNamespace("scpdata", quietly = TRUE)) pak::pak("scpdata")
 ```
 
 ```{r setup, message = FALSE}
 library(DaparToolshed)
-library(scpdata)
 ```
 
 
@@ -66,7 +64,19 @@ library(scpdata)
 
 For testing purposes, the `DaparToolshedData` package is accompanied with several example datasets.
 
-The dataset used in this vignette is an extract from the `Exp1_R25_pept` dataset in the `DaparToolshedData` package (@giai_gianetto_calibration_2016). It comprises 500 peptides and 6 samples, divided into 2 conditions ("25fmol" and "10fmol"). 
+The dataset used in this vignette is an extract from the `dou2019_mouse` dataset in the `scpdata` package.
+
+```{r}
+# Library for example dataset
+if (!requireNamespace("scpdata", quietly = TRUE)) pak::pak("scpdata")
+
+library(scpdata)
+```
+We illustrate this pipeline on single-cell data to get statistical power but the pipeline is also available on bulk proteomic data (considering cells and samples are equivalent in this analysis). 
+
+The dataset is composed of 15,492 peptides and 72 cells, equally divided into three conditions ("c10", "SVEC" and "RAW").
+To obtain more information on this dataset please refer to the help of the function `?scpdata::dou2019_mouse` or the article @dou2019_mousedata.
+
 
 ```{r dataset}
 dta <- dou2019_mouse()
@@ -115,8 +125,10 @@ colnames(quantdta) <- gsub(".", "_", colnames(quantdta), fixed = TRUE)
 The function `createQFeatures()` allows for the importation of a given dataset to a `QFeatures` format. The dataset can come from any tabulated-like file containing quantitative data and metadata, accompanied by another dataframe for the sample description. The `QFeatures` format allows you to keep track of the various transformations made at each step.
 
 For each peptide (or precursor) in each sample of the dataset, it is possible to tag the evidence that links the abundance to the molecule identified: for instance, if the abundance value is missing or imputed, if the quantification-identification match result from a transfer between samples or if there has been a fragmentation spectrum identified in relation to the quantified elution profile, etc. If such metadata is available, then the corresponding column indexes can be indicated in `indexForMetacell`. This allows the information to be leveraged during the workflow. 
+
 The quantitative data do not need to be logged beforehand, as setting `logData = TRUE` will yield automatic log-transform. Similarly, with `force.na = TRUE`, any quantitative data with a null value or a NaN will be converted to NA. It is necessary to specify the column of the table where the mother proteins are indicated (`'parentProtId'` parameter) as an adjacency matrix is created when the function is executed. This matrix provides easy access to peptide-protein relationships, including shared peptides, i.e., when the same peptide belongs to several proteins. To run a peptidomics analysis (i.e., peptides are analysed irrespective of their mother proteins), as no peptide-to-protein aggregation is necessary, it is more suited to rely on the same workflow as for protein-level analysis.
 
+To decrease the run time of the vignette, we only use the first 1000 peptides. The analyse should be on all the peptides. 
 
 ```{r importdata, message = FALSE}
 obj <- createQFeatures(
@@ -143,7 +155,7 @@ obj
 design_qf(obj)
 ```
 
-The data obtained includes two assays: `original` and `logAssay`. The original, non-logged data is contained in `original`, while the logged data is in `logAssay`. This shows how the `QFeatures` format allows for recording the state of the dataset after each step. 
+The data obtained includes two assays: `original` and `logAssay`, respectively for the non-logged data and the logged data. This shows how the `QFeatures` format allows for recording the state of the dataset after each step. 
 
 
 # Filtering
@@ -224,7 +236,7 @@ normalizeMethods()
 The methods proposed acts as described below:
 
 - `GlobalQuantileAlignment` : Aligns the quantiles of intensity distributions across all samples. (This method should be used cautiously, as it imposes a high-impact normalization. Broadly speaking, the abundances are replaced by their order statistics).
-- `SumByColumns` : Normalizes each abundance value by the total abundance of its corresponding sample. Un-logged intensities are used for processing. This method assumes the total amount of biological material is equal in all the samples .
+- `SumByColumns` : Normalizes each abundance value by the total abundance of its corresponding sample. Un-logged intensities are used for processing. This method assumes the total amount of biological material is equal in all the samples.
 - `QuantileCentering` : Aligns the intensity distributions to a specific quantile, e.g., the median or a lower quantile, either across all samples or within each condition.
 - `MeanCentering` : Aligns the intensity distributions to their means, either across all samples or within each condition. Optionally, unit variance can be enforced.
 - `LOESS` : Applies a cyclic LOESS normalization, either across all samples or within each condition. The intensity values are normalized by means of a local regression model of the difference of intensities as function of the median intensity value (@cleveland_robust_1979) (see @gentleman_limma:_2005 for implementation details).
@@ -374,111 +386,121 @@ obj
 # Differential Analysis
 
 Differential protein expression analysis compares the relative abundance of the same protein between two conditions. The comparison between two conditions results in what is called a contrast, for example “A vs. B.” 
-The dataset used here contains only two conditions, hence there is only one contrast to be considered. 
-
-For additional advice on this step, see @wieczorek_five_2019.
-
-## Hypothesis test : 2 conditions to compare and selection on Volcano plot
-
-
-Cette section se place dans le cas d'une comparaison de deux groupes uniquement (sans autres groupes ni covariable). 
-Dans l'analyse différentielle, il peut être pertinent de faire une sélection sur un Volcano Plot afin de garder les protéines ayant de petites $p$-valeurs et de grands foldChange. 
-
-Le controle du FDR (espérance de la Proportion de Faux Positif (FDP)) n'est pas garantie dans le cas d'une telle sélection (voir Ebrahimpour et al ...[???]). 
-Une alternative est de contrôler la médiane de la FDP. Pour cela nous allons utiliser la méthode **sanssouci** qui donne des bornes dites post hoc sur la FDP dans *des sous-ensembles d'hypothèses arbitraires, multiples et éventuellement guidés par des données*. 
-
-Pour cela nous allons utiliser le package `sanssouci` qui permet de (1) calculer les $p$-valeurs et le logFoldChange selon le test choisi, (2) calculer les guaranties post hoc sur le FDP et (3) obtenir les bornes post hoc sur une sélection faite à postériori sur le volcano plot (associées aux p-valeurs et foldchange de l'étape (1)). 
-
-Dans le cas de l'étude différentielle de protéine, le package `Limma` est utilisé. 
-
-### Initialisation of SansSouci object
-
-La première étape est d'initialiser l'objet `SansSouci`. Attention, ici les groupes doivent être codé avec des labels '1' et '0' pour les deux labels de groupes à comparer.
+The dataset contains three conditions. To illustrate the differential analysis, we only compare two conditions : "C10" vs "RAW".
 
 ```{r}
-library(sanssouci4DaparToolshed)
-library(sanssouci)
-
 # selectionne 2 conditions
 indexcond <- which(colData(obj)$Condition %in% c("C10", "RAW"))
 obj_selectcond <- obj[, indexcond]
+```
+
+
+
+A common practice is to perform a test between two conditions for each protein and plot a volcano plot (a graph with log fold change on the x-axis and p-values on the y-axis on a $-\log_{10}$ scale). Conventional differential analysis seeks to refine a selection of proteins on a volcano plot by setting thresholds based on (log) $p$-values and (log) fold changes. This selection procedure does not provide guarantees regarding the FDR (False Discovery Rate) @ebrahimpoor2021inflated. However, \emph{post hoc} methods @GS2011 allow for control of the False Discovery Proportion (FDP, mathematically $FDR = \mathbb{E}[FDP]$). These methods have the property of upper bounding the FDP for *arbitrary, multiple, simultaneous, and possibly data-driven subsets* of proteins with **statistical confidence**. In particular, these FDP bounds are valid for protein selections derived from the visual (and possibly iterative) analysis of a volcano plot.
+
+For this analysis we use the \texttt{sanssouci} package @sansSouci-package implementing \emph{post hoc} methods developed in @blanchard20post-hoc. 
+The default method is called the Simes method. When the number of samples per condition is large enough, a more powerful method can be obtained by a calibration principle introduced in @blanchard20post-hoc: it relies on permutations of condition labels to learn the dependence between proteins. By construction, this method is more computationally intensive than the baseline method. 
+
+### Initialisation of SansSouci object
+
+The first step is to init a `SansSouci` object. More precisely, we init a `SansSouci4DT` object which provide a `SansSouci` object for the `DaparToolshed` pipeline described in this vignette. 
+
+```{r}
+if(!require(sanssouci4DaparToolshed)) {pak::pak("sanssouci-org/sanssouci4DaparToolshed")}
+library(sanssouci4DaparToolshed)
+
+if(!require(sanssouci)){pak::pak("sanssouci-org/sanssouci")}
+library(sanssouci)
 
 sanssouci_object <- SansSouci4DT(obj_selectcond)
 ```
 
 ### Hypothesis testing and post hoc calibration 
 
-[ici je n'aime pas le titre parce que je parle de calibration mais ce n'est jamais introduit avant]
+To compute tests, we need to choose some parameters. 
+The parameter `alpha` is the error level such that the confidence level $1-\alpha$ corresponds to the probability of obtaining an uper bound on the FDP. To approximate the FDR, we propose to choose `alpha = 0.5$ corresponding to the median of the FDP. 
 
-Il faut définir les paramètres du test. 
-Pour contrôler la médianne de la FDP il faut choisir le niveau $\alpha = 0.5$.
+The statistical test and the number of permutations $B$ depend on the number $n$ of samples per condition @enjalbert2022powerful:
 
-[Ici on pourrait discuter de la valeur de B? Par défaut elle vaut 1000 dans notre code.]
+- If $n \geq 10$, then use `rowTestFUN = sanssouci::rowWelchTests` and `B = 1000`. The calibrated Simes method will be used. 
+- If $n \leq 10$, then replace the Welch $t$-test by a moderated test, like `limma`~@limma, using the parameters `rowTestFUN = sanssouci4DaparToolshed::rowLimmaTest` and `B = 0`. The Simes method will be used.
+
+The running example data thus correspond to the first case. 
+
 
 ```{r}
 alpha <- 0.5
+rowTestFUN <- sanssouci::rowWelchTests
+B <- 1000
 ```
 
-
-Le calcul des pvaleurs ainsi que la calibration des bornes post hoc se fait avec la fonction `fit` du package `sanssouci` en fournissant l'objet SansSouci, le niveau d'erreur $\alpha$ ainsi que la fonction de test. 
+To compute p-values, fold change and the post hoc bounds calibration, please use `sanssouci::fit()` function.
 
 ```{r}
-sanssouci_object_cal_limma <- fit(sanssouci_object,
+sanssouci_object_cal <- fit(sanssouci_object,
   alpha = alpha,
-  rowTestFUN = rowLimmaTest, B = 1000
+  rowTestFUN = rowTestFUN, B = B
 )
-sanssouci_object_cal_limma
+sanssouci_object_cal
 ```
 
-A partir de cet objet il est possible d'extraire les pvaleurs et le logFolchange par les fonction d'appel `pValues` et `foldChanges` respectivement. 
+From the `sanssouci_object_cal`, the p-values and the log fold change can be extract using, respectively, `sanssouci::pValues()` and `sanssouci::foldChanges()` functions.
 
 ```{r}
-pval <- as.vector(pValues(sanssouci_object_cal_limma))
-logFC <- as.vector(foldChanges(sanssouci_object_cal_limma))
+pval <- as.vector(pValues(sanssouci_object_cal))
+logFC <- as.vector(foldChanges(sanssouci_object_cal))
 ```
 
 
 ### Volcano plot and post hoc bound
 
-Il est possible d'avoir une garantie post hoc sur n'importe quelle sélection faite sur le vocanoplot en appliquant un seuil sur les pvaleurs ainsi que le foldchange. 
+Then, the volcano plot can be drawn. You can make any selection you want, *post hoc* method provides statistical guaranties.   
 
 ```{r}
 pval_threshold <- 0.01
 logfc_threshold <- 0.04
 
 volcanoPlot(
-  x = sanssouci_object_cal_limma,
+  sanssouci_object_cal,
   pval_thr = pval_threshold,
   logfc_thr = logfc_threshold, interactive = FALSE
 )
 ```
 
-La filtration permets de sélectionner 39 protéines. Parmis ces protéines, la garanties statistiques à 50% permet de dire qu'il y a au moins 35 protéines qui sont réellement différentiellement exprimées. Cela revient à dire que la proportion de faux positifs n'excède pas 10%.
+In our case, thresholds allow for the selection of 40 proteins. Among these proteins, the 50% statistical confidence level indicates that there are at least 35 proteins that are actually differentially expressed. This means that the proportion of false positives does not exceed 12%.
 
-[heu on a forcé le volcano plot a utiliser le terme gène. On refait avec ggplot2 ?]
+You can iteratively refine the thresholds as many times as necessary. The statistical guarantees will remain intact. 
 
-### Extraction des protéines sélectionnées 
+### Extraction of selected proteins
 
-Proposition d'extraction et sorti : tableau data.frame qui contient toutes les protéines, les pvaleurs associées ainsi que les logFC. Il y a autant de colonnes en suivant que de sélection. Une colonne de sélection est consititué de 1 pour la sélection et 0 pour la non sélection. Cette colonne a des attributs reprenant les seuils de sélection + les bornes post hoc FDP et TP. 
-
+You can save the selection in the `QFeatures` object with the `export2dapartoolshed` function. Please use the fitted `SansSouci4DT` object and provide the thresholds on p-values and log fold change. 
 
 ```{r}
 obj_selectcond <- export2dapartoolshed(
-  sanssouci_obj = sanssouci_object_cal_limma,
+  sanssouci_object_cal,
   pval_thr = pval_threshold,
   logfc_thr = logfc_threshold,
   qfeature_obj = obj_selectcond
 )
+```
 
+This function store a `data.frame` in the metadata of the `QFeatures` object. 
+
+```{r}
 head(metadata(obj_selectcond)$posthoc_selection)
 ```
 
-Pour obtenir les bornes post hoc 
+This `data.frame contains at least three columns: the protein names, the $p$-values and the log fold changes. 
+In addition, each of the following columns contains a user-defined selection (the column name begins by "sel\_"). This binary vector indicates whether the protein was selected. The statistics of each selection can be accessed using the `getPostHocBound()` function, as follows: 
 
 ```{r}
 getPostHocBound(obj_selectcond, "sel_1")
 ```
 
+
+## For more complex experimental design
+
+If your experimental design is more complex than two conditions (for exemple, more than two conditions or with covariates), please use post hoc method for linear model developped by @davenport2025fdp. This method is implemented in the package `sanssouci`. For now, please follow the [vignette for linear model](https://sanssouci-org.github.io/sanssouci/articles/post-hoc_differential-expression_linear-model.html).
 
 # Session information {-}
 
